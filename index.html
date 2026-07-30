@@ -244,7 +244,6 @@
             vertical-align: middle;
         }
 
-        /* Calling indicator overlay */
         .calling-indicator {
             position: fixed;
             top: 20px;
@@ -611,7 +610,7 @@
             }
         };
 
-        const STORAGE_KEY = 'apexcrm_db_v8';
+        const STORAGE_KEY = 'apexcrm_db_v9';
         let customers = [];
         let currentPage = 1;
         let itemsPerPage = 20;
@@ -698,12 +697,22 @@
         }
 
         function startCall(customerId, event) {
-            if (event) event.preventDefault();
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
             const c = customers.find(i => i.id === customerId);
-            if (!c || !c.phone) return;
+            if (!c || !c.phone) {
+                showToast('No phone number available for this contact.', 'danger');
+                return false;
+            }
 
             const rawPhone = getRawPhoneNumber(c.phone);
-            if (!rawPhone) return;
+            if (!rawPhone) {
+                showToast('Invalid phone number.', 'danger');
+                return false;
+            }
 
             currentCallCustomer = c;
             const indicator = document.getElementById('callingIndicator');
@@ -716,7 +725,15 @@
                 endCall();
             }, 300000);
 
-            window.open('tel:' + rawPhone, '_self');
+            const telLink = document.createElement('a');
+            telLink.href = 'tel:' + rawPhone;
+            telLink.style.display = 'none';
+            document.body.appendChild(telLink);
+            telLink.click();
+            document.body.removeChild(telLink);
+
+            showToast(`Calling ${c.name} at ${formatPhoneForDisplay(c.phone)}...`, 'primary');
+            return false;
         }
 
         window.endCall = function() {
@@ -724,6 +741,9 @@
             indicator.classList.add('hidden');
             if (callTimer) clearTimeout(callTimer);
             callTimer = null;
+            if (currentCallCustomer) {
+                showToast(`Call with ${currentCallCustomer.name} ended.`, 'primary');
+            }
             currentCallCustomer = null;
         };
 
@@ -763,7 +783,7 @@
             sorted.forEach(c=>{
                 const tr = document.createElement('tr');
                 const rawPhone = getRawPhoneNumber(c.phone);
-                tr.innerHTML=`<td class="fw-semibold">${escapeHtml(c.name)}</td><td>${escapeHtml(c.company||'-')}</td><td><span class="badge ${getStatusBadgeClass(c.status)}">${c.status}</span></td><td><div class="d-flex align-items-center gap-1"><small>${escapeHtml(formatPhoneForDisplay(c.phone))}</small>${c.phone ? `<a href="#" class="call-btn btn-sm" title="Call" onclick="startCall('${c.id}', event)"><i class="bi bi-telephone-fill"></i></a>` : ''}</div></td><td>${c.followUp||'-'}</td><td><span class="badge ${getPriorityBadgeClass(c.priority)}">${c.priority}</span></td>`;
+                tr.innerHTML=`<td class="fw-semibold">${escapeHtml(c.name)}</td><td>${escapeHtml(c.company||'-')}</td><td><span class="badge ${getStatusBadgeClass(c.status)}">${c.status}</span></td><td><div class="d-flex align-items-center gap-1"><small>${escapeHtml(formatPhoneForDisplay(c.phone))}</small>${c.phone ? `<a href="javascript:void(0)" class="call-btn btn-sm" title="Call" onclick="startCall('${c.id}', event)"><i class="bi bi-telephone-fill"></i></a>` : ''}</div></td><td>${c.followUp||'-'}</td><td><span class="badge ${getPriorityBadgeClass(c.priority)}">${c.priority}</span></td>`;
                 tbody.appendChild(tr);
             });
         }
@@ -837,7 +857,7 @@
                         <td>
                             <div class="d-flex align-items-center gap-1">
                                 <small>${escapeHtml(phoneDisplay)}</small>
-                                ${c.phone ? `<a href="#" class="call-btn btn-sm" title="Call ${escapeHtml(phoneDisplay)}" onclick="startCall('${c.id}', event)"><i class="bi bi-telephone-fill"></i></a>` : ''}
+                                ${c.phone ? `<a href="javascript:void(0)" class="call-btn btn-sm" title="Call ${escapeHtml(phoneDisplay)}" onclick="startCall('${c.id}', event)"><i class="bi bi-telephone-fill"></i></a>` : ''}
                             </div>
                         </td>
                         <td><small>${escapeHtml(c.city||'')}, ${escapeHtml(c.country||'')}</small></td>
@@ -1008,7 +1028,7 @@
                     <div class="col-6"><strong>Company:</strong> ${escapeHtml(c.company||'-')}</div>
                     <div class="col-6"><strong>Status:</strong> <span class="badge ${getStatusBadgeClass(c.status)}">${c.status}</span></div>
                     <div class="col-6"><strong>Email:</strong> ${escapeHtml(c.email)}</div>
-                    <div class="col-6"><strong>Phone:</strong> ${escapeHtml(c.phone||'-')} ${c.phone ? `<a href="#" class="call-btn btn-sm ms-1" onclick="startCall('${c.id}', event)"><i class="bi bi-telephone-fill"></i> Call</a>` : ''}</div>
+                    <div class="col-6"><strong>Phone:</strong> ${escapeHtml(c.phone||'-')} ${c.phone ? `<a href="javascript:void(0)" class="call-btn btn-sm ms-1" onclick="startCall('${c.id}', event)"><i class="bi bi-telephone-fill"></i> Call</a>` : ''}</div>
                     <div class="col-12"><strong>Address:</strong> ${escapeHtml(c.address||'')}, ${escapeHtml(c.city||'')}, ${escapeHtml(c.country||'')}</div>
                 </div>
                 <div class="d-flex gap-2 mb-3">
