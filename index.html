@@ -195,6 +195,7 @@
             display: inline-flex;
             align-items: center;
             gap: 0.3rem;
+            cursor: pointer;
         }
         .call-btn:hover {
             background: #157347;
@@ -212,6 +213,7 @@
             display: inline-flex;
             align-items: center;
             gap: 0.3rem;
+            cursor: pointer;
         }
         .aiphone-btn:hover {
             background: #0b5ed7;
@@ -240,6 +242,55 @@
 
         .table td {
             vertical-align: middle;
+        }
+
+        /* Calling indicator overlay */
+        .calling-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            background: linear-gradient(135deg, #198754, #157347);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 2rem;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: pulse 1.5s infinite;
+            font-weight: 600;
+            font-size: 0.95rem;
+            max-width: 400px;
+        }
+        .calling-indicator.hidden {
+            display: none;
+        }
+        .calling-indicator .spinner-border {
+            width: 20px;
+            height: 20px;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.6); }
+            70% { box-shadow: 0 0 0 18px rgba(25, 135, 84, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0); }
+        }
+        .calling-indicator .hangup-btn {
+            background: rgba(255,255,255,0.25);
+            border: none;
+            color: white;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+        .calling-indicator .hangup-btn:hover {
+            background: rgba(220,53,69,0.9);
         }
     </style>
 </head>
@@ -465,6 +516,21 @@
     </main>
 </div>
 
+<!-- Calling Indicator -->
+<div id="callingIndicator" class="calling-indicator hidden">
+    <div class="spinner-border spinner-border-sm" role="status">
+        <span class="visually-hidden">Calling...</span>
+    </div>
+    <div>
+        <div style="font-size:0.75rem;opacity:0.9;">Calling...</div>
+        <div id="callingName" style="font-weight:700;"></div>
+        <div id="callingPhone" style="font-size:0.85rem;opacity:0.9;"></div>
+    </div>
+    <button class="hangup-btn" onclick="endCall()" title="End Call">
+        <i class="bi bi-telephone-x-fill"></i>
+    </button>
+</div>
+
 <div class="modal fade" id="customerModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
@@ -545,7 +611,7 @@
             }
         };
 
-        const STORAGE_KEY = 'apexcrm_db_v7';
+        const STORAGE_KEY = 'apexcrm_db_v8';
         let customers = [];
         let currentPage = 1;
         let itemsPerPage = 20;
@@ -553,19 +619,37 @@
         let statusChartInstance = null;
         let sourceChartInstance = null;
         let currentViewingCustomerId = null;
+        let callTimer = null;
+        let currentCallCustomer = null;
 
         const initialSeedData = [
-            { id:'cust-101', name:'Sarah Jenkins', company:'TechFlow', email:'sarah@techflow.io', phone:'+31647271001', city:'Amsterdam', country:'Netherlands', address:'Damrak 1', source:'Website', status:'New', priority:'High', rep:'John Sales', followUp:'2026-08-10', notes:'Dutch lead.', comments:[], archived:false, createdAt:new Date('2026-07-01').toISOString(), updatedAt:new Date('2026-07-01').toISOString() },
-            { id:'cust-102', name:'Michael Chang', company:'Apex Log', email:'mchang@apex.com', phone:'+33647271001', city:'Paris', country:'France', address:'1 Rue Rivoli', source:'LinkedIn', status:'New', priority:'Medium', rep:'John Sales', followUp:'2026-08-01', notes:'French prospect.', comments:[], archived:false, createdAt:new Date('2026-07-02').toISOString(), updatedAt:new Date('2026-07-02').toISOString() },
-            { id:'cust-103', name:'Elena Rostova', company:'GlobalDesign', email:'elena@design.eu', phone:'+442079460912', city:'London', country:'UK', address:'12 Oxford St', source:'Referral', status:'New', priority:'High', rep:'Sarah Rep', followUp:'2026-07-31', notes:'Interested.', comments:[], archived:false, createdAt:new Date('2026-07-03').toISOString(), updatedAt:new Date('2026-07-03').toISOString() }
+            { id:'cust-101', name:'Sarah Jenkins', company:'TechFlow', email:'sarah@techflow.io', phone:'+31647271001', city:'Amsterdam', country:'Netherlands', address:'Damrak 1', source:'Website', status:'New', priority:'High', rep:'John Sales', followUp:'2026-08-10', notes:'Dutch lead.', comments:[], archived:false, orderIndex: 1, createdAt:new Date().toISOString(), updatedAt:new Date().toISOString() },
+            { id:'cust-102', name:'Michael Chang', company:'Apex Log', email:'mchang@apex.com', phone:'+33647271001', city:'Paris', country:'France', address:'1 Rue Rivoli', source:'LinkedIn', status:'New', priority:'Medium', rep:'John Sales', followUp:'2026-08-01', notes:'French prospect.', comments:[], archived:false, orderIndex: 2, createdAt:new Date().toISOString(), updatedAt:new Date().toISOString() },
+            { id:'cust-103', name:'Elena Rostova', company:'GlobalDesign', email:'elena@design.eu', phone:'+442079460912', city:'London', country:'UK', address:'12 Oxford St', source:'Referral', status:'New', priority:'High', rep:'Sarah Rep', followUp:'2026-07-31', notes:'Interested.', comments:[], archived:false, orderIndex: 3, createdAt:new Date().toISOString(), updatedAt:new Date().toISOString() }
         ];
 
         function loadData() {
             const stored = localStorage.getItem(STORAGE_KEY);
             if (stored) { try { customers = JSON.parse(stored); } catch(e) { customers = [...initialSeedData]; } } else { customers = [...initialSeedData];
                 saveData(); }
+            ensureOrderIndexes();
         }
         function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(customers)); }
+
+        function ensureOrderIndexes() {
+            let maxIndex = customers.reduce((max, c) => Math.max(max, c.orderIndex || 0), 0);
+            customers.forEach(c => {
+                if (!c.orderIndex) {
+                    maxIndex++;
+                    c.orderIndex = maxIndex;
+                }
+            });
+            saveData();
+        }
+
+        function getNextOrderIndex() {
+            return customers.reduce((max, c) => Math.max(max, c.orderIndex || 0), 0) + 1;
+        }
 
         function refreshAllViews() { refreshDashboard();
             renderCustomerTable();
@@ -613,6 +697,36 @@
             return phone.replace(/\s+/g, '');
         }
 
+        function startCall(customerId, event) {
+            if (event) event.preventDefault();
+            const c = customers.find(i => i.id === customerId);
+            if (!c || !c.phone) return;
+
+            const rawPhone = getRawPhoneNumber(c.phone);
+            if (!rawPhone) return;
+
+            currentCallCustomer = c;
+            const indicator = document.getElementById('callingIndicator');
+            document.getElementById('callingName').innerText = c.name;
+            document.getElementById('callingPhone').innerText = formatPhoneForDisplay(c.phone);
+            indicator.classList.remove('hidden');
+
+            if (callTimer) clearTimeout(callTimer);
+            callTimer = setTimeout(() => {
+                endCall();
+            }, 300000);
+
+            window.open('tel:' + rawPhone, '_self');
+        }
+
+        window.endCall = function() {
+            const indicator = document.getElementById('callingIndicator');
+            indicator.classList.add('hidden');
+            if (callTimer) clearTimeout(callTimer);
+            callTimer = null;
+            currentCallCustomer = null;
+        };
+
         function refreshDashboard() {
             const act = customers.filter(c=>!c.archived);
             document.getElementById('dash-total-customers').innerText = act.length;
@@ -644,12 +758,12 @@
         function renderRecentActivity(records) {
             const tbody = document.getElementById('recentActivityTableBody');
             tbody.innerHTML = '';
-            const sorted = [...records].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,5);
+            const sorted = [...records].sort((a,b)=>b.orderIndex - a.orderIndex).slice(0,5);
             if(!sorted.length) { tbody.innerHTML='<tr><td colspan="6" class="text-center py-3 text-muted">No activity</td></tr>'; return; }
             sorted.forEach(c=>{
                 const tr = document.createElement('tr');
                 const rawPhone = getRawPhoneNumber(c.phone);
-                tr.innerHTML=`<td class="fw-semibold">${escapeHtml(c.name)}</td><td>${escapeHtml(c.company||'-')}</td><td><span class="badge ${getStatusBadgeClass(c.status)}">${c.status}</span></td><td><div class="d-flex align-items-center gap-1"><small>${escapeHtml(formatPhoneForDisplay(c.phone))}</small>${c.phone ? `<a href="tel:${escapeHtml(rawPhone)}" class="call-btn btn-sm" title="Call"><i class="bi bi-telephone-fill"></i></a>` : ''}</div></td><td>${c.followUp||'-'}</td><td><span class="badge ${getPriorityBadgeClass(c.priority)}">${c.priority}</span></td>`;
+                tr.innerHTML=`<td class="fw-semibold">${escapeHtml(c.name)}</td><td>${escapeHtml(c.company||'-')}</td><td><span class="badge ${getStatusBadgeClass(c.status)}">${c.status}</span></td><td><div class="d-flex align-items-center gap-1"><small>${escapeHtml(formatPhoneForDisplay(c.phone))}</small>${c.phone ? `<a href="#" class="call-btn btn-sm" title="Call" onclick="startCall('${c.id}', event)"><i class="bi bi-telephone-fill"></i></a>` : ''}</div></td><td>${c.followUp||'-'}</td><td><span class="badge ${getPriorityBadgeClass(c.priority)}">${c.priority}</span></td>`;
                 tbody.appendChild(tr);
             });
         }
@@ -662,7 +776,7 @@
             return customers.filter(c=>{
                 return (c.name.toLowerCase().includes(search) || (c.company&&c.company.toLowerCase().includes(search)) || c.email.toLowerCase().includes(search) || (c.phone&&c.phone.includes(search))) &&
                     (!status || c.status===status) && (!priority || c.priority===priority) && (!source || c.source===source);
-            }).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+            }).sort((a,b)=> (b.orderIndex || 0) - (a.orderIndex || 0));
         }
 
         function getSelectedIds() {
@@ -723,7 +837,7 @@
                         <td>
                             <div class="d-flex align-items-center gap-1">
                                 <small>${escapeHtml(phoneDisplay)}</small>
-                                ${c.phone ? `<a href="tel:${escapeHtml(rawPhone)}" class="call-btn btn-sm" title="Call ${escapeHtml(phoneDisplay)}"><i class="bi bi-telephone-fill"></i></a>` : ''}
+                                ${c.phone ? `<a href="#" class="call-btn btn-sm" title="Call ${escapeHtml(phoneDisplay)}" onclick="startCall('${c.id}', event)"><i class="bi bi-telephone-fill"></i></a>` : ''}
                             </div>
                         </td>
                         <td><small>${escapeHtml(c.city||'')}, ${escapeHtml(c.country||'')}</small></td>
@@ -860,10 +974,12 @@
             };
             if(id) {
                 const idx = customers.findIndex(c=>c.id===id);
-                if(idx!==-1) { payload.createdAt = customers[idx].createdAt;
+                if(idx!==-1) { payload.orderIndex = customers[idx].orderIndex || getNextOrderIndex();
+                    payload.createdAt = customers[idx].createdAt;
                     customers[idx] = payload; }
                 showToast('Record updated!');
             } else {
+                payload.orderIndex = getNextOrderIndex();
                 payload.createdAt = now;
                 customers.unshift(payload);
                 showToast('Record added!');
@@ -892,7 +1008,7 @@
                     <div class="col-6"><strong>Company:</strong> ${escapeHtml(c.company||'-')}</div>
                     <div class="col-6"><strong>Status:</strong> <span class="badge ${getStatusBadgeClass(c.status)}">${c.status}</span></div>
                     <div class="col-6"><strong>Email:</strong> ${escapeHtml(c.email)}</div>
-                    <div class="col-6"><strong>Phone:</strong> ${escapeHtml(c.phone||'-')} ${c.phone ? `<a href="tel:${escapeHtml(rawPhone)}" class="call-btn btn-sm ms-1"><i class="bi bi-telephone-fill"></i> Call</a>` : ''}</div>
+                    <div class="col-6"><strong>Phone:</strong> ${escapeHtml(c.phone||'-')} ${c.phone ? `<a href="#" class="call-btn btn-sm ms-1" onclick="startCall('${c.id}', event)"><i class="bi bi-telephone-fill"></i> Call</a>` : ''}</div>
                     <div class="col-12"><strong>Address:</strong> ${escapeHtml(c.address||'')}, ${escapeHtml(c.city||'')}, ${escapeHtml(c.country||'')}</div>
                 </div>
                 <div class="d-flex gap-2 mb-3">
@@ -922,7 +1038,7 @@
         };
 
         window.duplicateCustomer = function(id, e) { if(e)e.preventDefault(); const c=customers.find(i=>i.id===id); if(!c)return;
-            customers.unshift({...c, id:'cust-'+Date.now(), name:c.name+' (Copy)', createdAt:new Date().toISOString(), updatedAt:new Date().toISOString()});
+            customers.unshift({...c, id:'cust-'+Date.now(), name:c.name+' (Copy)', orderIndex: getNextOrderIndex(), createdAt:new Date().toISOString(), updatedAt:new Date().toISOString()});
             saveData();
             refreshAllViews();
             showToast('Duplicated.'); };
@@ -1030,7 +1146,9 @@
                 tbody.appendChild(tr); });
             if(allRows.length>10) tbody.innerHTML+=`<tr><td colspan="${headers.length}" class="text-center text-muted">... and ${allRows.length-10} more</td></tr>`;
 
-            tempParsedImportData = allRows.map(row=>{
+            const currentMaxOrder = customers.reduce((max, c) => Math.max(max, c.orderIndex || 0), 0);
+
+            tempParsedImportData = allRows.map((row, idx) => {
                 const name = String(row[0]||'').trim();
                 const company = String(row[1]||'').trim();
                 const email = String(row[2]||'').trim();
@@ -1069,6 +1187,7 @@
                     notes: notesVal,
                     comments:[],
                     archived:false,
+                    orderIndex: currentMaxOrder + idx + 1,
                     createdAt:new Date().toISOString(),
                     updatedAt:new Date().toISOString()
                 };
