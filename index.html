@@ -195,11 +195,9 @@
             display: inline-flex;
             align-items: center;
             gap: 0.3rem;
+            cursor: pointer;
         }
-        .call-btn:hover {
-            background: #157347;
-            color: white;
-        }
+        .call-btn:hover { background: #157347; color: white; }
         .aiphone-btn {
             background: #0d6efd;
             border: none;
@@ -212,11 +210,9 @@
             display: inline-flex;
             align-items: center;
             gap: 0.3rem;
+            cursor: pointer;
         }
-        .aiphone-btn:hover {
-            background: #0b5ed7;
-            color: white;
-        }
+        .aiphone-btn:hover { background: #0b5ed7; color: white; }
 
         .bulk-action-bar {
             background: var(--bs-tertiary-bg);
@@ -233,882 +229,260 @@
         .status-badge-not-interested { background-color: #dc3545; color: white; }
         .status-badge-wrong-number { background-color: #6c757d; color: white; }
         .status-badge-customer { background-color: #198754; color: white; }
-        .status-badge-lead { background-color: #0dcaf0; color: #000; }
         .status-badge-contacted { background-color: #0d6efd; color: white; }
         .status-badge-proposal { background-color: #ffc107; color: #000; }
         .status-badge-inactive { background-color: #adb5bd; color: #000; }
+        .status-badge-voicemail { background-color: #0dcaf0; color: #000; }
+        .status-badge-callback { background-color: #20c997; color: white; }
 
-        .table td {
-            vertical-align: middle;
+        .table td { vertical-align: middle; }
+
+        .calling-indicator {
+            position: fixed; top: 20px; right: 20px; z-index: 9999;
+            background: linear-gradient(135deg, #198754, #157347); color: white;
+            padding: 12px 20px; border-radius: 2rem;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            display: flex; align-items: center; gap: 12px;
+            animation: pulse 1.5s infinite; font-weight: 600; font-size: 0.95rem; max-width: 400px;
         }
+        .calling-indicator.hidden { display: none; }
+        .calling-indicator .spinner-border { width: 20px; height: 20px; }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.6); }
+            70% { box-shadow: 0 0 0 18px rgba(25, 135, 84, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0); }
+        }
+        .calling-indicator .hangup-btn {
+            background: rgba(255,255,255,0.25); border: none; color: white;
+            border-radius: 50%; width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 1rem; transition: 0.2s;
+        }
+        .calling-indicator .hangup-btn:hover { background: rgba(220,53,69,0.9); }
+
+        .auto-dialer-panel {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 1050; background: var(--bs-body-bg);
+            border: 2px solid var(--bs-primary); border-radius: 1rem;
+            padding: 1rem 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            min-width: 420px; max-width: 580px; display: none;
+        }
+        .auto-dialer-panel.show { display: block; }
+        .auto-dialer-panel .progress { height: 8px; border-radius: 4px; }
+        .auto-dialer-btn {
+            background: linear-gradient(135deg, #6f42c1, #0d6efd);
+            border: none; color: white; padding: 0.4rem 1rem;
+            border-radius: 2rem; font-weight: 600; font-size: 0.85rem;
+            transition: 0.2s; cursor: pointer;
+        }
+        .auto-dialer-btn:hover { opacity: 0.9; }
+        .auto-dialer-btn.stop { background: linear-gradient(135deg, #dc3545, #fd7e14); }
+
+        .dialer-status-btn {
+            border: none; color: white; padding: 0.3rem 0.6rem;
+            border-radius: 1.5rem; font-size: 0.75rem; font-weight: 600;
+            cursor: pointer; transition: 0.2s; white-space: nowrap;
+        }
+        .dialer-status-btn:hover { opacity: 0.85; transform: scale(1.03); }
+        .dialer-status-btn.no-answer { background: #fd7e14; }
+        .dialer-status-btn.not-interested { background: #dc3545; }
+        .dialer-status-btn.voicemail { background: #0dcaf0; color: #000; }
+        .dialer-status-btn.callback { background: #20c997; }
+
+        .dialer-calling-box {
+            background: linear-gradient(135deg, #198754, #157347); color: #fff;
+            border-radius: 0.75rem; padding: 0.75rem 1rem;
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 0.75rem; animation: pulse 1.5s infinite;
+        }
+        .dialer-calling-box .spinner-border { width: 18px; height: 18px; }
+        .dialer-calling-box .hangup-btn {
+            background: rgba(255,255,255,0.25); border: none; color: #fff;
+            border-radius: 50%; width: 32px; height: 32px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 1rem; transition: 0.2s;
+        }
+        .dialer-calling-box .hangup-btn:hover { background: rgba(220,53,69,0.9); }
     </style>
 </head>
 <body>
 
 <div id="app-wrapper">
     <aside id="sidebar">
-        <div class="sidebar-brand">
-            <i class="bi bi-briefcase-fill text-primary me-2"></i>
-            <span>ApexCRM</span>
-        </div>
+        <div class="sidebar-brand"><i class="bi bi-briefcase-fill text-primary me-2"></i><span>ApexCRM</span></div>
         <div class="p-2 flex-grow-1 overflow-y-auto">
-            <small class="text-uppercase text-muted fw-bold px-3 d-block my-2" style="font-size: 0.7rem;">Main Menu</small>
-            <a href="#" class="nav-link-custom active" onclick="switchTab('dashboard', event)">
-                <i class="bi bi-speedometer2"></i> Dashboard
-            </a>
-            <a href="#" class="nav-link-custom" onclick="switchTab('customers', event)">
-                <i class="bi bi-people-fill"></i> Customers
-            </a>
-            <a href="#" class="nav-link-custom" onclick="switchTab('import-export', event)">
-                <i class="bi bi-file-earmark-spreadsheet-fill"></i> Import / Export
-            </a>
-
-            <small class="text-uppercase text-muted fw-bold px-3 d-block mt-4 mb-2" style="font-size: 0.7rem;">Quick Filters</small>
-            <a href="#" class="nav-link-custom" onclick="filterByStatus('New', event)">
-                <i class="bi bi-star-fill text-purple"></i> New
-            </a>
-            <a href="#" class="nav-link-custom" onclick="filterByStatus('No Answer', event)">
-                <i class="bi bi-telephone-x-fill text-warning"></i> No Answer
-            </a>
-            <a href="#" class="nav-link-custom" onclick="filterByStatus('Not Interested', event)">
-                <i class="bi bi-hand-thumbs-down-fill text-danger"></i> Not Interested
-            </a>
-            <a href="#" class="nav-link-custom" onclick="filterByStatus('Wrong Number', event)">
-                <i class="bi bi-exclamation-triangle-fill text-secondary"></i> Wrong Number
-            </a>
-            <a href="#" class="nav-link-custom" onclick="filterByStatus('Customer', event)">
-                <i class="bi bi-check-circle-fill text-success"></i> Customers
-            </a>
-            <a href="#" class="nav-link-custom" onclick="filterByArchive(true, event)">
-                <i class="bi bi-archive-fill text-warning"></i> Archived
-            </a>
+            <small class="text-uppercase text-muted fw-bold px-3 d-block my-2" style="font-size:0.7rem;">Main Menu</small>
+            <a href="#" class="nav-link-custom active" onclick="switchTab('dashboard',event)"><i class="bi bi-speedometer2"></i> Dashboard</a>
+            <a href="#" class="nav-link-custom" onclick="switchTab('customers',event)"><i class="bi bi-people-fill"></i> Customers</a>
+            <a href="#" class="nav-link-custom" onclick="switchTab('import-export',event)"><i class="bi bi-file-earmark-spreadsheet-fill"></i> Import / Export</a>
+            <small class="text-uppercase text-muted fw-bold px-3 d-block mt-4 mb-2" style="font-size:0.7rem;">Quick Filters</small>
+            <a href="#" class="nav-link-custom" onclick="filterByStatus('New',event)"><i class="bi bi-star-fill text-purple"></i> New</a>
+            <a href="#" class="nav-link-custom" onclick="filterByStatus('No Answer',event)"><i class="bi bi-telephone-x-fill text-warning"></i> No Answer</a>
+            <a href="#" class="nav-link-custom" onclick="filterByStatus('Not Interested',event)"><i class="bi bi-hand-thumbs-down-fill text-danger"></i> Not Interested</a>
+            <a href="#" class="nav-link-custom" onclick="filterByStatus('Wrong Number',event)"><i class="bi bi-exclamation-triangle-fill text-secondary"></i> Wrong Number</a>
+            <a href="#" class="nav-link-custom" onclick="filterByStatus('Customer',event)"><i class="bi bi-check-circle-fill text-success"></i> Customers</a>
+            <a href="#" class="nav-link-custom" onclick="filterByArchive(true,event)"><i class="bi bi-archive-fill text-warning"></i> Archived</a>
             <hr class="my-2 mx-3">
-            <a href="#" class="nav-link-custom text-danger" onclick="markAllAsNew(event)">
-                <i class="bi bi-flag-fill"></i> Mark All as New
-            </a>
-            <a href="#" class="nav-link-custom text-danger" onclick="deleteAllRecords(event)">
-                <i class="bi bi-trash-fill"></i> Delete All Records
-            </a>
+            <a href="#" class="nav-link-custom text-primary" onclick="openAutoDialerPanel(event)"><i class="bi bi-headset"></i> Auto Dialer</a>
+            <hr class="my-2 mx-3">
+            <a href="#" class="nav-link-custom text-danger" onclick="markAllAsNew(event)"><i class="bi bi-flag-fill"></i> Mark All as New</a>
+            <a href="#" class="nav-link-custom text-danger" onclick="deleteAllRecords(event)"><i class="bi bi-trash-fill"></i> Delete All Records</a>
         </div>
-        <div class="p-3 border-top">
-            <div class="d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center gap-2">
-                    <div class="avatar-initials">JS</div>
-                    <div class="lh-1">
-                        <div class="fw-bold small">John Sales</div>
-                        <small class="text-muted" style="font-size: 0.75rem;">Admin</small>
-                    </div>
-                </div>
-                <button class="btn btn-sm btn-outline-secondary rounded-circle" onclick="toggleDarkMode()" id="themeToggleBtn" title="Toggle Dark/Light Mode">
-                    <i class="bi bi-moon-fill" id="themeIcon"></i>
-                </button>
-            </div>
-        </div>
+        <div class="p-3 border-top"><div class="d-flex align-items-center justify-content-between"><div class="d-flex align-items-center gap-2"><div class="avatar-initials">JS</div><div class="lh-1"><div class="fw-bold small">John Sales</div><small class="text-muted" style="font-size:0.75rem;">Admin</small></div></div><button class="btn btn-sm btn-outline-secondary rounded-circle" onclick="toggleDarkMode()"><i class="bi bi-moon-fill" id="themeIcon"></i></button></div></div>
     </aside>
 
     <main id="main-content">
         <header id="topbar" class="px-4 d-flex align-items-center justify-content-between">
-            <div class="d-flex align-items-center gap-3">
-                <button class="btn btn-outline-secondary d-lg-none" onclick="toggleSidebar()">
-                    <i class="bi bi-list fs-5"></i>
-                </button>
-                <div class="input-group" style="width: 280px;">
-                    <span class="input-group-text bg-transparent border-end-0"><i class="bi bi-search"></i></span>
-                    <input type="text" id="globalSearchInput" class="form-control border-start-0 ps-0" placeholder="Global search..." onkeyup="handleGlobalSearch(event)">
-                </div>
-            </div>
-            <div class="d-flex align-items-center gap-2">
-                <button class="btn btn-primary" onclick="openCustomerModal()">
-                    <i class="bi bi-plus-lg me-1"></i> Add Customer
-                </button>
-            </div>
+            <div class="d-flex align-items-center gap-3"><button class="btn btn-outline-secondary d-lg-none" onclick="toggleSidebar()"><i class="bi bi-list fs-5"></i></button><div class="input-group" style="width:280px;"><span class="input-group-text bg-transparent border-end-0"><i class="bi bi-search"></i></span><input type="text" id="globalSearchInput" class="form-control border-start-0 ps-0" placeholder="Global search..." onkeyup="handleGlobalSearch(event)"></div></div>
+            <div class="d-flex align-items-center gap-2"><button class="btn btn-primary" onclick="openCustomerModal()"><i class="bi bi-plus-lg me-1"></i> Add Customer</button></div>
         </header>
 
         <div class="p-4 flex-grow-1" id="mainContainer">
             <section id="view-dashboard" class="tab-view">
-                <div class="d-flex align-items-center justify-content-between mb-4">
-                    <div>
-                        <h4 class="fw-bold mb-1">Executive Dashboard</h4>
-                        <p class="text-muted mb-0 small">Real-time breakdown of pipeline, customer growth, and operational metrics.</p>
-                    </div>
-                    <button class="btn btn-sm btn-outline-primary" onclick="refreshDashboard()"><i class="bi bi-arrow-clockwise me-1"></i> Refresh</button>
-                </div>
-
+                <div class="d-flex align-items-center justify-content-between mb-4"><div><h4 class="fw-bold mb-1">Dashboard</h4></div><button class="btn btn-sm btn-outline-primary" onclick="refreshDashboard()"><i class="bi bi-arrow-clockwise me-1"></i> Refresh</button></div>
                 <div class="row g-3 mb-4">
-                    <div class="col-12 col-sm-6 col-xl-3">
-                        <div class="card metric-card p-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div><small class="text-muted fw-semibold d-block mb-1">TOTAL RECORDS</small><h3 class="fw-bold mb-0" id="dash-total-customers">0</h3></div>
-                                <div class="icon-shape bg-primary-subtle text-primary"><i class="bi bi-people-fill"></i></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 col-sm-6 col-xl-3">
-                        <div class="card metric-card p-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div><small class="text-muted fw-semibold d-block mb-1">NEW LEADS</small><h3 class="fw-bold mb-0" id="dash-total-leads">0</h3></div>
-                                <div class="icon-shape bg-purple-subtle text-purple" style="background: rgba(111,66,193,0.1); color:#6f42c1;"><i class="bi bi-star-fill"></i></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 col-sm-6 col-xl-3">
-                        <div class="card metric-card p-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div><small class="text-muted fw-semibold d-block mb-1">NO ANSWER</small><h3 class="fw-bold mb-0" id="dash-no-answer">0</h3></div>
-                                <div class="icon-shape bg-warning-subtle text-warning"><i class="bi bi-telephone-x-fill"></i></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 col-sm-6 col-xl-3">
-                        <div class="card metric-card p-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div><small class="text-muted fw-semibold d-block mb-1">NOT INTERESTED</small><h3 class="fw-bold mb-0" id="dash-not-interested">0</h3></div>
-                                <div class="icon-shape bg-danger-subtle text-danger"><i class="bi bi-hand-thumbs-down-fill"></i></div>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="col-12 col-sm-6 col-xl-3"><div class="card metric-card p-3"><div class="d-flex justify-content-between"><div><small class="text-muted fw-semibold">TOTAL</small><h3 class="fw-bold mb-0" id="dash-total-customers">0</h3></div><div class="icon-shape bg-primary-subtle text-primary"><i class="bi bi-people-fill"></i></div></div></div></div>
+                    <div class="col-12 col-sm-6 col-xl-3"><div class="card metric-card p-3"><div class="d-flex justify-content-between"><div><small class="text-muted fw-semibold">NEW</small><h3 class="fw-bold mb-0" id="dash-total-leads">0</h3></div><div class="icon-shape bg-purple-subtle text-purple" style="background:rgba(111,66,193,0.1);color:#6f42c1;"><i class="bi bi-star-fill"></i></div></div></div></div>
+                    <div class="col-12 col-sm-6 col-xl-3"><div class="card metric-card p-3"><div class="d-flex justify-content-between"><div><small class="text-muted fw-semibold">NO ANSWER</small><h3 class="fw-bold mb-0" id="dash-no-answer">0</h3></div><div class="icon-shape bg-warning-subtle text-warning"><i class="bi bi-telephone-x-fill"></i></div></div></div></div>
+                    <div class="col-12 col-sm-6 col-xl-3"><div class="card metric-card p-3"><div class="d-flex justify-content-between"><div><small class="text-muted fw-semibold">NOT INTERESTED</small><h3 class="fw-bold mb-0" id="dash-not-interested">0</h3></div><div class="icon-shape bg-danger-subtle text-danger"><i class="bi bi-hand-thumbs-down-fill"></i></div></div></div></div>
                 </div>
-
-                <div class="row g-3 mb-4">
-                    <div class="col-12 col-lg-8"><div class="card border p-3 h-100"><h6 class="fw-bold mb-3">Status Distribution</h6><div style="height: 300px; position: relative;"><canvas id="statusChart"></canvas></div></div></div>
-                    <div class="col-12 col-lg-4"><div class="card border p-3 h-100"><h6 class="fw-bold mb-3">Lead Sources</h6><div style="height: 300px; position: relative;" class="d-flex align-items-center justify-content-center"><canvas id="sourceChart"></canvas></div></div></div>
-                </div>
-
-                <div class="card border">
-                    <div class="card-header bg-transparent fw-bold border-bottom py-3">Recent Activity</div>
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light"><tr><th>Customer</th><th>Company</th><th>Status</th><th>Phone</th><th>Follow-up Date</th><th>Priority</th></tr></thead>
-                            <tbody id="recentActivityTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
+                <div class="row g-3 mb-4"><div class="col-12 col-lg-8"><div class="card border p-3"><h6 class="fw-bold">Status Distribution</h6><div style="height:300px;"><canvas id="statusChart"></canvas></div></div></div><div class="col-12 col-lg-4"><div class="card border p-3"><h6 class="fw-bold">Sources</h6><div style="height:300px;"><canvas id="sourceChart"></canvas></div></div></div></div>
+                <div class="card border"><div class="card-header fw-bold">Recent Activity</div><div class="table-responsive"><table class="table table-hover mb-0"><thead class="table-light"><tr><th>Customer</th><th>Company</th><th>Status</th><th>Phone</th><th>Follow-up</th><th>Priority</th></tr></thead><tbody id="recentActivityTableBody"></tbody></table></div></div>
             </section>
 
             <section id="view-customers" class="tab-view d-none">
-                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-                    <div><h4 class="fw-bold mb-1">Customer Directory</h4><p class="text-muted mb-0 small">Manage contacts, leads, and statuses.</p></div>
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-outline-secondary btn-sm" onclick="exportData('xlsx')"><i class="bi bi-file-earmark-excel me-1"></i> Export Excel</button>
-                        <button class="btn btn-primary btn-sm" onclick="openCustomerModal()"><i class="bi bi-plus-lg me-1"></i> Add Record</button>
-                    </div>
-                </div>
-
-                <div class="card border mb-3 p-3 bg-tertiary-bg">
-                    <div class="row g-2 align-items-end">
-                        <div class="col-12 col-md-3"><label class="form-label small fw-bold mb-1">Search</label><input type="text" id="filterSearch" class="form-control form-control-sm" placeholder="Name, Email, Company..." oninput="applyFilters()"></div>
-                        <div class="col-6 col-md-2"><label class="form-label small fw-bold mb-1">Status</label><select id="filterStatus" class="form-select form-select-sm" onchange="applyFilters()"><option value="">All Statuses</option><option value="New">New</option><option value="No Answer">No Answer</option><option value="Not Interested">Not Interested</option><option value="Wrong Number">Wrong Number</option><option value="Customer">Customer</option><option value="Contacted">Contacted</option><option value="Proposal Sent">Proposal Sent</option><option value="Inactive">Inactive</option></select></div>
-                        <div class="col-6 col-md-2"><label class="form-label small fw-bold mb-1">Priority</label><select id="filterPriority" class="form-select form-select-sm" onchange="applyFilters()"><option value="">All</option><option value="High">High</option><option value="Medium">Medium</option><option value="Low">Low</option></select></div>
-                        <div class="col-6 col-md-2"><label class="form-label small fw-bold mb-1">Source</label><select id="filterSource" class="form-select form-select-sm" onchange="applyFilters()"><option value="">All</option><option value="Website">Website</option><option value="Referral">Referral</option><option value="Cold Call">Cold Call</option><option value="LinkedIn">LinkedIn</option><option value="Trade Show">Trade Show</option></select></div>
-                        <div class="col-6 col-md-3 d-flex gap-1 align-items-end">
-                            <div class="w-100"><label class="form-label small fw-bold mb-1">Show</label><select id="itemsPerPageSelect" class="form-select form-select-sm" onchange="changeItemsPerPage()"><option value="20">20</option><option value="50">50</option><option value="100">100</option></select></div>
-                            <button class="btn btn-sm btn-outline-secondary w-100" onclick="resetFilters()"><i class="bi bi-x-circle me-1"></i> Clear</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bulk-action-bar mb-3 d-none" id="bulkActionBar">
-                    <span class="small fw-bold me-2" id="selectedCount">0 selected</span>
-                    <button class="btn btn-sm btn-outline-purple" style="border-color:#6f42c1;color:#6f42c1;" onclick="bulkChangeStatus('New')"><i class="bi bi-star-fill me-1"></i> New</button>
-                    <button class="btn btn-sm btn-outline-warning" onclick="bulkChangeStatus('No Answer')"><i class="bi bi-telephone-x-fill me-1"></i> No Answer</button>
-                    <button class="btn btn-sm btn-outline-danger" onclick="bulkChangeStatus('Not Interested')"><i class="bi bi-hand-thumbs-down-fill me-1"></i> Not Interested</button>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="bulkChangeStatus('Wrong Number')"><i class="bi bi-exclamation-triangle-fill me-1"></i> Wrong Number</button>
-                    <button class="btn btn-sm btn-outline-danger" onclick="bulkDelete()"><i class="bi bi-trash-fill me-1"></i> Delete</button>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="clearSelection()"><i class="bi bi-x-lg me-1"></i> Clear</button>
-                </div>
-
-                <div class="card border">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0" id="customerTable">
-                            <thead class="table-light"><tr><th><input type="checkbox" id="selectAllCheckbox" onclick="toggleSelectAll(this)"></th><th>Customer / Company</th><th>Email</th><th>Phone</th><th>Location</th><th>Status</th><th>Priority</th><th>Follow-Up</th><th>Comments</th><th class="text-end">Actions</th></tr></thead>
-                            <tbody id="customerTableBody"></tbody>
-                        </table>
-                    </div>
-                    <div class="card-footer bg-transparent d-flex align-items-center justify-content-between py-2">
-                        <small class="text-muted" id="paginationInfo">Showing 0 of 0</small>
-                        <ul class="pagination pagination-sm mb-0" id="paginationControls"></ul>
-                    </div>
-                </div>
+                <div class="d-flex justify-content-between align-items-md-center gap-3 mb-4"><div><h4 class="fw-bold mb-1">Customer Directory</h4></div><div class="d-flex gap-2"><button class="btn btn-outline-secondary btn-sm" onclick="exportData('xlsx')"><i class="bi bi-file-earmark-excel me-1"></i> Export</button><button class="btn btn-primary btn-sm" onclick="openCustomerModal()"><i class="bi bi-plus-lg me-1"></i> Add</button></div></div>
+                <div class="card border mb-3 p-3 bg-tertiary-bg"><div class="row g-2 align-items-end"><div class="col-12 col-md-3"><label class="form-label small fw-bold mb-1">Search</label><input type="text" id="filterSearch" class="form-control form-control-sm" oninput="applyFilters()"></div><div class="col-6 col-md-2"><label class="form-label small fw-bold mb-1">Status</label><select id="filterStatus" class="form-select form-select-sm" onchange="applyFilters()"><option value="">All</option><option value="New">New</option><option value="No Answer">No Answer</option><option value="Not Interested">Not Interested</option><option value="Wrong Number">Wrong Number</option><option value="Voicemail">Voicemail</option><option value="Call Back">Call Back</option><option value="Customer">Customer</option></select></div><div class="col-6 col-md-2"><label class="form-label small fw-bold mb-1">Priority</label><select id="filterPriority" class="form-select form-select-sm" onchange="applyFilters()"><option value="">All</option><option value="High">High</option><option value="Medium">Medium</option><option value="Low">Low</option></select></div><div class="col-6 col-md-2"><label class="form-label small fw-bold mb-1">Source</label><select id="filterSource" class="form-select form-select-sm" onchange="applyFilters()"><option value="">All</option><option value="Website">Website</option><option value="Referral">Referral</option><option value="Cold Call">Cold Call</option><option value="LinkedIn">LinkedIn</option><option value="Trade Show">Trade Show</option></select></div><div class="col-6 col-md-3 d-flex gap-1 align-items-end"><div class="w-100"><label class="form-label small fw-bold mb-1">Show</label><select id="itemsPerPageSelect" class="form-select form-select-sm" onchange="changeItemsPerPage()"><option value="20">20</option><option value="50">50</option><option value="100">100</option></select></div><button class="btn btn-sm btn-outline-secondary w-100" onclick="resetFilters()">Clear</button></div></div></div>
+                <div class="bulk-action-bar mb-3 d-none" id="bulkActionBar"><span class="small fw-bold me-2" id="selectedCount">0</span><button class="btn btn-sm btn-outline-purple" style="border-color:#6f42c1;color:#6f42c1;" onclick="bulkChangeStatus('New')">New</button><button class="btn btn-sm btn-outline-warning" onclick="bulkChangeStatus('No Answer')">No Answer</button><button class="btn btn-sm btn-outline-danger" onclick="bulkChangeStatus('Not Interested')">Not Interested</button><button class="btn btn-sm btn-outline-info" onclick="bulkChangeStatus('Voicemail')">Voicemail</button><button class="btn btn-sm btn-outline-success" onclick="bulkChangeStatus('Call Back')">Call Back</button><button class="btn btn-sm btn-outline-danger" onclick="bulkDelete()">Delete</button><button class="btn btn-sm btn-outline-primary" onclick="startAutoDialerFromSelection()">Auto Dial</button><button class="btn btn-sm btn-outline-secondary" onclick="clearSelection()">Clear</button></div>
+                <div class="card border"><div class="table-responsive"><table class="table table-hover mb-0" id="customerTable"><thead class="table-light"><tr><th><input type="checkbox" id="selectAllCheckbox" onclick="toggleSelectAll(this)"></th><th>Customer / Company</th><th>Email</th><th>Phone</th><th>Location</th><th>Status</th><th>Priority</th><th>Follow-Up</th><th>Comments</th><th class="text-end">Actions</th></tr></thead><tbody id="customerTableBody"></tbody></table></div><div class="card-footer d-flex justify-content-between py-2"><small id="paginationInfo"></small><ul class="pagination pagination-sm mb-0" id="paginationControls"></ul></div></div>
             </section>
 
             <section id="view-import-export" class="tab-view d-none">
-                <h4 class="fw-bold mb-1">Import & Export Center</h4>
-                <p class="text-muted mb-4 small">Bulk upload contacts via Excel/CSV with auto mapping, or backup your entire system.</p>
-                <div class="row g-4">
-                    <div class="col-12 col-lg-7">
-                        <div class="card border p-4">
-                            <h6 class="fw-bold mb-3"><i class="bi bi-file-earmark-excel text-success me-2"></i> Import File (.xlsx / .csv)</h6>
-                            <div class="drop-zone mb-3" id="dropZone" onclick="document.getElementById('fileInput').click()">
-                                <i class="bi bi-cloud-arrow-up text-primary fs-1 mb-2 d-block"></i>
-                                <span class="fw-semibold text-body">Drag & drop your file here or click to browse</span>
-                                <small class="text-muted d-block mt-1">Supports XLSX, XLS, and CSV files</small>
-                                <input type="file" id="fileInput" class="d-none" accept=".xlsx, .xls, .csv" onchange="handleFileSelect(event)">
-                            </div>
-                            <div id="importProgressContainer" class="d-none mb-3"><div class="d-flex justify-content-between small mb-1"><span>Parsing Spreadsheet...</span><span id="progressPercent">0%</span></div><div class="progress" style="height: 6px;"><div class="progress-bar progress-bar-striped progress-bar-animated" id="importProgressBar" style="width: 0%"></div></div></div>
-                            <div class="alert alert-info py-2 px-3 small"><i class="bi bi-info-circle me-1"></i> Columns: Name, Company, Email, Phone, City, Country, Address, Status, Priority, Source, Notes</div>
-                        </div>
-                    </div>
-                    <div class="col-12 col-lg-5">
-                        <div class="card border p-4 h-100 d-flex flex-column justify-content-between">
-                            <div><h6 class="fw-bold mb-3"><i class="bi bi-download text-primary me-2"></i> Export Data</h6><p class="small text-muted">Generate instant reports and spreadsheet backups.</p>
-                                <div class="d-grid gap-2">
-                                    <button class="btn btn-outline-success text-start p-3" onclick="exportData('xlsx')"><div class="fw-bold"><i class="bi bi-file-earmark-excel me-2"></i> Excel (.xlsx)</div></button>
-                                    <button class="btn btn-outline-secondary text-start p-3" onclick="exportData('csv')"><div class="fw-bold"><i class="bi bi-file-earmark-text me-2"></i> CSV (.csv)</div></button>
-                                    <button class="btn btn-outline-danger text-start p-3" onclick="exportData('pdf')"><div class="fw-bold"><i class="bi bi-file-earmark-pdf me-2"></i> PDF Print</div></button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <h4 class="fw-bold mb-1">Import & Export</h4>
+                <div class="row g-4"><div class="col-12 col-lg-7"><div class="card border p-4"><h6 class="fw-bold mb-3">Import (.xlsx/.csv)</h6><div class="drop-zone mb-3" id="dropZone" onclick="document.getElementById('fileInput').click()"><i class="bi bi-cloud-arrow-up text-primary fs-1 mb-2 d-block"></i><span class="fw-semibold">Drag & drop or click</span><input type="file" id="fileInput" class="d-none" accept=".xlsx,.xls,.csv" onchange="handleFileSelect(event)"></div><div id="importProgressContainer" class="d-none mb-3"><div class="progress"><div class="progress-bar" id="importProgressBar" style="width:0%"></div></div></div></div></div><div class="col-12 col-lg-5"><div class="card border p-4"><h6 class="fw-bold mb-3">Export</h6><div class="d-grid gap-2"><button class="btn btn-outline-success p-3" onclick="exportData('xlsx')">Excel</button><button class="btn btn-outline-secondary p-3" onclick="exportData('csv')">CSV</button><button class="btn btn-outline-danger p-3" onclick="exportData('pdf')">PDF</button></div></div></div></div>
             </section>
         </div>
     </main>
 </div>
 
-<div class="modal fade" id="customerModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title fw-bold" id="modalTitle">Add New Customer</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
-            <div class="modal-body">
-                <form id="customerForm" class="row g-3" onsubmit="saveCustomer(event)">
-                    <input type="hidden" id="cust-id">
-                    <div class="col-12 col-md-6"><label class="form-label small fw-bold">Name *</label><input type="text" id="cust-name" class="form-control" required placeholder="John Doe"></div>
-                    <div class="col-12 col-md-6"><label class="form-label small fw-bold">Company</label><input type="text" id="cust-company" class="form-control" placeholder="Acme Corp"></div>
-                    <div class="col-12 col-md-6"><label class="form-label small fw-bold">Email *</label><input type="email" id="cust-email" class="form-control" required placeholder="john@example.com"></div>
-                    <div class="col-12 col-md-6"><label class="form-label small fw-bold">Phone</label><div class="input-group"><input type="text" id="cust-phone" class="form-control" placeholder="+31 6 47271001" oninput="handlePhoneInput(this.value)"><span class="input-group-text small text-muted" id="detectedCountryBadge" style="font-size: 0.75rem;">Auto</span></div></div>
-                    <div class="col-12 col-md-4"><label class="form-label small fw-bold">City</label><input type="text" id="cust-city" class="form-control" placeholder="Amsterdam"></div>
-                    <div class="col-12 col-md-4"><label class="form-label small fw-bold">Country</label><input type="text" id="cust-country" class="form-control" placeholder="Netherlands"></div>
-                    <div class="col-12 col-md-4"><label class="form-label small fw-bold">Address</label><input type="text" id="cust-address" class="form-control" placeholder="123 Main St"></div>
-                    <div class="col-12 col-md-4"><label class="form-label small fw-bold">Source</label><select id="cust-source" class="form-select"><option value="Website">Website</option><option value="Referral">Referral</option><option value="Cold Call">Cold Call</option><option value="LinkedIn">LinkedIn</option><option value="Trade Show">Trade Show</option></select></div>
-                    <div class="col-12 col-md-4"><label class="form-label small fw-bold">Status</label><select id="cust-status" class="form-select"><option value="New" selected>New</option><option value="No Answer">No Answer</option><option value="Not Interested">Not Interested</option><option value="Wrong Number">Wrong Number</option><option value="Contacted">Contacted</option><option value="Proposal Sent">Proposal Sent</option><option value="Customer">Customer</option><option value="Inactive">Inactive</option></select></div>
-                    <div class="col-12 col-md-4"><label class="form-label small fw-bold">Priority</label><select id="cust-priority" class="form-select"><option value="Low">Low</option><option value="Medium" selected>Medium</option><option value="High">High</option></select></div>
-                    <div class="col-12 col-md-6"><label class="form-label small fw-bold">Sales Rep</label><input type="text" id="cust-rep" class="form-control" value="John Sales"></div>
-                    <div class="col-12 col-md-6"><label class="form-label small fw-bold">Follow-Up Date</label><input type="date" id="cust-followup" class="form-control"></div>
-                    <div class="col-12"><label class="form-label small fw-bold">Notes</label><textarea id="cust-notes" class="form-control" rows="3" placeholder="Internal notes..."></textarea></div>
-                    <div class="modal-footer px-0 pb-0 pt-3 border-top"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Save</button></div>
-                </form>
+<div id="callingIndicator" class="calling-indicator hidden"><div class="spinner-border spinner-border-sm"></div><div><div style="font-size:0.75rem;opacity:0.9;">Calling...</div><div id="callingName" style="font-weight:700;"></div><div id="callingPhone" style="font-size:0.85rem;"></div></div><button class="hangup-btn" onclick="endCall()"><i class="bi bi-telephone-x-fill"></i></button></div>
+
+<div id="autoDialerPanel" class="auto-dialer-panel">
+    <div class="d-flex justify-content-between align-items-center mb-2"><h6 class="fw-bold mb-0"><i class="bi bi-headset me-2"></i>Auto Dialer</h6><button class="btn-close" onclick="closeAutoDialerPanel()"></button></div>
+    <div class="alert alert-info py-2 px-3 small mb-2"><i class="bi bi-info-circle me-1"></i> After each call, hang up in MicroSIP then click a status button or "Next Call".</div>
+    <div class="row g-2 mb-2"><div class="col-6"><label class="form-label small fw-bold mb-1">Calls</label><input type="number" id="autoDialerCount" class="form-control form-control-sm" value="20" min="1" max="500"></div><div class="col-6"><label class="form-label small fw-bold mb-1">Interval (sec)</label><input type="number" id="autoDialerInterval" class="form-control form-control-sm" value="30" min="5" max="300"></div></div>
+    <div class="mb-2"><label class="form-label small fw-bold mb-1">Status Filter</label><select id="autoDialerStatusFilter" class="form-select form-select-sm"><option value="New" selected>New Only</option><option value="No Answer">No Answer</option><option value="New,No Answer,Call Back">New + No Answer + Call Back</option><option value="">All with phone</option></select></div>
+    <div id="autoDialerProgressContainer" class="d-none mb-2"><div class="d-flex justify-content-between small mb-1"><span id="autoDialerStatus">Ready</span><span id="autoDialerCounter">0/0</span></div><div class="progress"><div class="progress-bar progress-bar-striped progress-bar-animated" id="autoDialerProgressBar" style="width:0%"></div></div></div>
+    <div id="currentCallInfo" class="d-none mb-2">
+        <div class="dialer-calling-box">
+            <div class="d-flex align-items-center gap-2">
+                <div class="spinner-border spinner-border-sm" role="status"></div>
+                <div>
+                    <div style="font-size:0.7rem;opacity:0.9;">Calling...</div>
+                    <div><strong id="currentCallName"></strong> - <span id="currentCallNumber"></span></div>
+                </div>
             </div>
+            <button class="hangup-btn" onclick="endCall()" title="Hang up"><i class="bi bi-telephone-x-fill"></i></button>
         </div>
+        <small class="text-muted d-block mt-1">Hang up in MicroSIP, then select status:</small>
     </div>
+    <div id="dialerStatusButtons" class="d-none mb-2 d-flex gap-1 flex-wrap">
+        <button class="dialer-status-btn no-answer" onclick="dialerSetStatus('No Answer')"><i class="bi bi-telephone-x-fill me-1"></i>No Answer</button>
+        <button class="dialer-status-btn not-interested" onclick="dialerSetStatus('Not Interested')"><i class="bi bi-hand-thumbs-down-fill me-1"></i>Not Interested</button>
+        <button class="dialer-status-btn voicemail" onclick="dialerSetStatus('Voicemail')"><i class="bi bi-voicemail me-1"></i>Voicemail</button>
+        <button class="dialer-status-btn callback" onclick="dialerSetStatus('Call Back')"><i class="bi bi-arrow-counterclockwise me-1"></i>Call Back</button>
+    </div>
+    <div class="d-flex gap-2"><button class="auto-dialer-btn flex-grow-1" id="startAutoDialerBtn" onclick="startAutoDialer()"><i class="bi bi-play-fill me-1"></i> Start</button><button class="auto-dialer-btn stop flex-grow-1 d-none" id="stopAutoDialerBtn" onclick="stopAutoDialer()"><i class="bi bi-stop-fill me-1"></i> Stop</button></div>
+    <button class="btn btn-success btn-sm w-100 mt-2 d-none" id="nextCallBtn" onclick="nextAutoDialerCall()"><i class="bi bi-skip-forward-fill me-1"></i> Next Call (Skip)</button>
 </div>
 
-<div class="modal fade" id="detailsModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title fw-bold" id="detail-name">Details</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
-            <div class="modal-body" id="detailModalBody"></div>
-            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div>
-        </div>
-    </div>
-</div>
+<div class="modal fade" id="customerModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title fw-bold" id="modalTitle">Customer</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="customerForm" class="row g-3" onsubmit="saveCustomer(event)"><input type="hidden" id="cust-id"><div class="col-12 col-md-6"><label class="form-label small fw-bold">Name *</label><input type="text" id="cust-name" class="form-control" required></div><div class="col-12 col-md-6"><label class="form-label small fw-bold">Company</label><input type="text" id="cust-company" class="form-control"></div><div class="col-12 col-md-6"><label class="form-label small fw-bold">Email *</label><input type="email" id="cust-email" class="form-control" required></div><div class="col-12 col-md-6"><label class="form-label small fw-bold">Phone</label><div class="input-group"><input type="text" id="cust-phone" class="form-control" oninput="handlePhoneInput(this.value)"><span class="input-group-text small" id="detectedCountryBadge">Auto</span></div></div><div class="col-12 col-md-4"><label class="form-label small fw-bold">City</label><input type="text" id="cust-city" class="form-control"></div><div class="col-12 col-md-4"><label class="form-label small fw-bold">Country</label><input type="text" id="cust-country" class="form-control"></div><div class="col-12 col-md-4"><label class="form-label small fw-bold">Address</label><input type="text" id="cust-address" class="form-control"></div><div class="col-12 col-md-4"><label class="form-label small fw-bold">Source</label><select id="cust-source" class="form-select"><option>Website</option><option>Referral</option><option>Cold Call</option><option>LinkedIn</option><option>Trade Show</option></select></div><div class="col-12 col-md-4"><label class="form-label small fw-bold">Status</label><select id="cust-status" class="form-select"><option value="New" selected>New</option><option value="No Answer">No Answer</option><option value="Not Interested">Not Interested</option><option value="Wrong Number">Wrong Number</option><option value="Voicemail">Voicemail</option><option value="Call Back">Call Back</option><option value="Contacted">Contacted</option><option value="Proposal Sent">Proposal Sent</option><option value="Customer">Customer</option><option value="Inactive">Inactive</option></select></div><div class="col-12 col-md-4"><label class="form-label small fw-bold">Priority</label><select id="cust-priority" class="form-select"><option value="Low">Low</option><option value="Medium" selected>Medium</option><option value="High">High</option></select></div><div class="col-12 col-md-6"><label class="form-label small fw-bold">Rep</label><input type="text" id="cust-rep" class="form-control" value="John Sales"></div><div class="col-12 col-md-6"><label class="form-label small fw-bold">Follow-Up</label><input type="date" id="cust-followup" class="form-control"></div><div class="col-12"><label class="form-label small fw-bold">Notes</label><textarea id="cust-notes" class="form-control" rows="3"></textarea></div><div class="modal-footer px-0 pb-0 pt-3"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Save</button></div></form></div></div></div></div>
 
-<div class="modal fade" id="excelMapperModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title fw-bold">Map Columns & Validate</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
-            <div class="modal-body"><p class="small text-muted mb-2">Detected <strong id="previewRowCount">0</strong> rows.</p><div class="table-responsive" style="max-height: 400px;"><table class="table table-sm table-bordered" id="previewImportTable"><thead class="table-light" id="previewTableHeader"></thead><tbody id="previewTableBody"></tbody></table></div></div>
-            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="button" class="btn btn-success" onclick="confirmImport()">Import All</button></div>
-        </div>
-    </div>
-</div>
+<div class="modal fade" id="detailsModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title fw-bold" id="detail-name">Details</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="detailModalBody"></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div></div></div></div>
+
+<div class="modal fade" id="excelMapperModal" tabindex="-1"><div class="modal-dialog modal-xl"><div class="modal-content"><div class="modal-header"><h5 class="modal-title fw-bold">Map Columns</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><p class="small text-muted">Detected <strong id="previewRowCount">0</strong> rows.</p><div class="table-responsive" style="max-height:400px;"><table class="table table-sm table-bordered" id="previewImportTable"><thead id="previewTableHeader"></thead><tbody id="previewTableBody"></tbody></table></div></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-success" onclick="confirmImport()">Import All</button></div></div></div></div>
 
 <div class="toast-container" id="toastContainer"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
-</script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    (function() {
-        const dialCodeCountryMap = [
-            { code: '+31', country: 'Netherlands' }, { code: '+33', country: 'France' }, { code: '+1', country: 'USA' },
-            { code: '+44', country: 'United Kingdom' }, { code: '+49', country: 'Germany' }, { code: '+91', country: 'India' },
-            { code: '+86', country: 'China' }, { code: '+81', country: 'Japan' }, { code: '+61', country: 'Australia' },
-            { code: '+55', country: 'Brazil' }, { code: '+52', country: 'Mexico' }, { code: '+39', country: 'Italy' },
-            { code: '+34', country: 'Spain' }, { code: '+7', country: 'Russia' }, { code: '+82', country: 'South Korea' },
-            { code: '+27', country: 'South Africa' }, { code: '+971', country: 'UAE' }, { code: '+65', country: 'Singapore' },
-            { code: '+41', country: 'Switzerland' }, { code: '+46', country: 'Sweden' }
-        ];
+(function(){
+const dialMap=[{code:'+31',country:'Netherlands'},{code:'+33',country:'France'},{code:'+1',country:'USA'},{code:'+44',country:'UK'},{code:'+49',country:'Germany'},{code:'+91',country:'India'},{code:'+86',country:'China'},{code:'+81',country:'Japan'},{code:'+61',country:'Australia'},{code:'+55',country:'Brazil'},{code:'+52',country:'Mexico'},{code:'+39',country:'Italy'},{code:'+34',country:'Spain'},{code:'+7',country:'Russia'},{code:'+82',country:'South Korea'},{code:'+27',country:'South Africa'},{code:'+971',country:'UAE'},{code:'+65',country:'Singapore'},{code:'+41',country:'Switzerland'},{code:'+46',country:'Sweden'}];
+window.handlePhoneInput=function(v){if(!v)return;const b=document.getElementById('detectedCountryBadge');const s=[...dialMap].sort((a,b)=>b.code.length-a.code.length);const m=s.find(c=>v.trim().startsWith(c.code));if(m){document.getElementById('cust-country').value=m.country;if(b){b.innerText=m.country;b.className='input-group-text small bg-success-subtle text-success fw-bold';}}else{if(b){b.innerText='Auto';b.className='input-group-text small text-muted';}}};
+const SK='apexcrm_v12';let customers=[],currentPage=1,itemsPerPage=20,tempImport=[],statusChart=null,sourceChart=null,viewingId=null,callTimer=null,currentCallCust=null;
+let adRunning=false,adQueue=[],adIdx=0,adTotal=0,adWaiting=false,adCurrentId=null;
+const seed=[{id:'c1',name:'Sarah Jenkins',company:'TechFlow',email:'sarah@tf.io',phone:'+31647271001',city:'Amsterdam',country:'Netherlands',address:'Damrak 1',source:'Website',status:'New',priority:'High',rep:'John Sales',followUp:'2026-08-10',notes:'',comments:[],archived:false,orderIndex:1,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()},{id:'c2',name:'Michael Chang',company:'Apex',email:'mc@apex.com',phone:'+33647271001',city:'Paris',country:'France',address:'1 Rue',source:'LinkedIn',status:'New',priority:'Medium',rep:'John Sales',followUp:'2026-08-01',notes:'',comments:[],archived:false,orderIndex:2,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()},{id:'c3',name:'Elena Rostova',company:'GD',email:'er@design.eu',phone:'+442079460912',city:'London',country:'UK',address:'12 Oxford',source:'Referral',status:'New',priority:'High',rep:'Sarah',followUp:'2026-07-31',notes:'',comments:[],archived:false,orderIndex:3,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()}];
+function load(){const s=localStorage.getItem(SK);if(s){try{customers=JSON.parse(s);}catch(e){customers=[...seed];}}else{customers=[...seed];save();}ensureOrder();}
+function save(){localStorage.setItem(SK,JSON.stringify(customers));}
+function ensureOrder(){let m=customers.reduce((x,c)=>Math.max(x,c.orderIndex||0),0);customers.forEach(c=>{if(!c.orderIndex){m++;c.orderIndex=m;}});save();}
+function refreshAll(){refreshDash();renderTable();updateBulk();}
+function toast(msg,type='success'){const c=document.getElementById('toastContainer');const bg=type==='danger'?'bg-danger':'bg-success';c.insertAdjacentHTML('beforeend',`<div class="toast align-items-center text-white ${bg} border-0 show"><div class="d-flex"><div class="toast-body">${msg}</div><button class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div></div>`);setTimeout(()=>{const els=c.querySelectorAll('.toast');if(els.length>3)els[0].remove();},3500);}
+function esc(s){return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'):'';}
+function statusClass(s){const map={New:'status-badge-new','No Answer':'status-badge-no-answer','Not Interested':'status-badge-not-interested','Wrong Number':'status-badge-wrong-number',Customer:'status-badge-customer',Contacted:'status-badge-contacted','Proposal Sent':'status-badge-proposal',Inactive:'status-badge-inactive',Voicemail:'status-badge-voicemail','Call Back':'status-badge-callback'};return map[s]||'bg-light text-dark';}
+function priorityClass(p){return p==='High'?'bg-danger':p==='Medium'?'bg-warning text-dark':'bg-info text-dark';}
+function fmtPhone(p){if(!p)return'-';const c=p.replace(/\s+/g,'');return c.startsWith('+')&&c.length>6?c.slice(0,3)+' '+c.slice(3,6)+' '+c.slice(6):p;}
+function rawPhone(p){return p?p.replace(/\s+/g,''):'';}
 
-        window.handlePhoneInput = function(phoneVal) {
-            if (!phoneVal) return;
-            const cleaned = phoneVal.trim();
-            const badge = document.getElementById('detectedCountryBadge');
-            const sorted = [...dialCodeCountryMap].sort((a, b) => b.code.length - a.code.length);
-            const match = sorted.find(c => cleaned.startsWith(c.code));
-            if (match) {
-                document.getElementById('cust-country').value = match.country;
-                if (badge) { badge.innerText = match.country;
-                    badge.className = 'input-group-text small bg-success-subtle text-success fw-bold'; }
-            } else {
-                if (badge) { badge.innerText = 'Auto';
-                    badge.className = 'input-group-text small text-muted'; }
-            }
-        };
+function startCall(cid,ev,fromDialer){if(ev){ev.preventDefault();ev.stopPropagation();}fromDialer=!!fromDialer;const c=customers.find(i=>i.id===cid);if(!c||!c.phone){toast('No phone number.','danger');return false;}const rp=rawPhone(c.phone);if(!rp){toast('Invalid number.','danger');return false;}currentCallCust=c;if(fromDialer){document.getElementById('callingIndicator').classList.add('hidden');}else{document.getElementById('callingIndicator').classList.remove('hidden');document.getElementById('callingName').innerText=c.name;document.getElementById('callingPhone').innerText=fmtPhone(c.phone);}if(callTimer)clearTimeout(callTimer);callTimer=setTimeout(()=>endCall(true),600000);const a=document.createElement('a');a.href='tel:'+rp;a.style.display='none';document.body.appendChild(a);a.click();document.body.removeChild(a);toast(`Calling ${c.name}...`,'primary');return false;}
+window.startCall=startCall;
+function triggerMicroSipHangup(){try{const a=document.createElement('a');a.href='sipctrl:hangup';a.style.display='none';document.body.appendChild(a);a.click();setTimeout(()=>{if(a.parentNode)document.body.removeChild(a);},100);}catch(e){}}
+window.endCall=function(auto=false){triggerMicroSipHangup();document.getElementById('callingIndicator').classList.add('hidden');if(callTimer)clearTimeout(callTimer);callTimer=null;if(currentCallCust&&!auto){toast(`Call ended: ${currentCallCust.name}`,'primary');}currentCallCust=null;if(adRunning&&adWaiting){document.getElementById('autoDialerStatus').innerText='Select status or click Next Call';document.getElementById('nextCallBtn').classList.remove('d-none');document.getElementById('dialerStatusButtons').classList.remove('d-none');}};
 
-        const STORAGE_KEY = 'apexcrm_db_v7';
-        let customers = [];
-        let currentPage = 1;
-        let itemsPerPage = 20;
-        let tempParsedImportData = [];
-        let statusChartInstance = null;
-        let sourceChartInstance = null;
-        let currentViewingCustomerId = null;
+window.dialerSetStatus=function(newStatus){if(!adRunning||!adWaiting||!adCurrentId){toast('No active dialer call.','danger');return;}const c=customers.find(i=>i.id===adCurrentId);if(c){c.status=newStatus;c.updatedAt=new Date().toISOString();const now=new Date();const ds=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0')+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');if(!c.comments)c.comments=[];c.comments.unshift({id:'c-'+Date.now(),author:'Auto Dialer',text:`Status set to "${newStatus}" via dialer`,date:ds});save();refreshAll();toast(`Status: ${newStatus}`);}adWaiting=false;document.getElementById('nextCallBtn').classList.add('d-none');document.getElementById('dialerStatusButtons').classList.add('d-none');document.getElementById('currentCallInfo').classList.add('d-none');adIdx++;setTimeout(()=>processNextAdCall(),500);};
 
-        const initialSeedData = [
-            { id:'cust-101', name:'Sarah Jenkins', company:'TechFlow', email:'sarah@techflow.io', phone:'+31647271001', city:'Amsterdam', country:'Netherlands', address:'Damrak 1', source:'Website', status:'New', priority:'High', rep:'John Sales', followUp:'2026-08-10', notes:'Dutch lead.', comments:[], archived:false, createdAt:new Date('2026-07-01').toISOString(), updatedAt:new Date('2026-07-01').toISOString() },
-            { id:'cust-102', name:'Michael Chang', company:'Apex Log', email:'mchang@apex.com', phone:'+33647271001', city:'Paris', country:'France', address:'1 Rue Rivoli', source:'LinkedIn', status:'New', priority:'Medium', rep:'John Sales', followUp:'2026-08-01', notes:'French prospect.', comments:[], archived:false, createdAt:new Date('2026-07-02').toISOString(), updatedAt:new Date('2026-07-02').toISOString() },
-            { id:'cust-103', name:'Elena Rostova', company:'GlobalDesign', email:'elena@design.eu', phone:'+442079460912', city:'London', country:'UK', address:'12 Oxford St', source:'Referral', status:'New', priority:'High', rep:'Sarah Rep', followUp:'2026-07-31', notes:'Interested.', comments:[], archived:false, createdAt:new Date('2026-07-03').toISOString(), updatedAt:new Date('2026-07-03').toISOString() }
-        ];
+window.nextAutoDialerCall=function(){if(!adRunning||!adWaiting)return;adWaiting=false;document.getElementById('nextCallBtn').classList.add('d-none');document.getElementById('dialerStatusButtons').classList.add('d-none');document.getElementById('currentCallInfo').classList.add('d-none');adIdx++;processNextAdCall();};
 
-        function loadData() {
-            const stored = localStorage.getItem(STORAGE_KEY);
-            if (stored) { try { customers = JSON.parse(stored); } catch(e) { customers = [...initialSeedData]; } } else { customers = [...initialSeedData];
-                saveData(); }
-        }
-        function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(customers)); }
+function processNextAdCall(){if(!adRunning)return;if(adIdx>=adTotal){stopAutoDialer();toast('Auto dialer completed!','success');return;}const c=adQueue[adIdx];adCurrentId=c.id;document.getElementById('autoDialerProgressContainer').classList.remove('d-none');document.getElementById('autoDialerStatus').innerText=`Dialing #${adIdx+1}: ${c.name}`;document.getElementById('autoDialerCounter').innerText=`${adIdx+1}/${adTotal}`;document.getElementById('autoDialerProgressBar').style.width=`${((adIdx+1)/adTotal)*100}%`;document.getElementById('currentCallInfo').classList.remove('d-none');document.getElementById('currentCallName').innerText=c.name;document.getElementById('currentCallNumber').innerText=fmtPhone(c.phone);document.getElementById('nextCallBtn').classList.add('d-none');document.getElementById('dialerStatusButtons').classList.add('d-none');startCall(c.id,null,true);adWaiting=true;document.getElementById('autoDialerStatus').innerText=`Call in progress: ${c.name}`;}
+window.stopAutoDialer=function(){adRunning=false;adWaiting=false;if(callTimer)clearTimeout(callTimer);document.getElementById('callingIndicator').classList.add('hidden');document.getElementById('currentCallInfo').classList.add('d-none');document.getElementById('nextCallBtn').classList.add('d-none');document.getElementById('dialerStatusButtons').classList.add('d-none');document.getElementById('autoDialerStatus').innerText='Stopped';updateAdButtons(false);toast('Auto dialer stopped.','danger');};
+function updateAdButtons(run){document.getElementById('startAutoDialerBtn').classList.toggle('d-none',run);document.getElementById('stopAutoDialerBtn').classList.toggle('d-none',!run);document.getElementById('autoDialerCount').disabled=run;document.getElementById('autoDialerInterval').disabled=run;document.getElementById('autoDialerStatusFilter').disabled=run;if(!run){document.getElementById('nextCallBtn').classList.add('d-none');document.getElementById('dialerStatusButtons').classList.add('d-none');}}
+window.startAutoDialer=function(){if(adRunning)return;const cnt=parseInt(document.getElementById('autoDialerCount').value)||20;const sf=document.getElementById('autoDialerStatusFilter').value;let pool=[];const sts=sf?sf.split(','):[];pool=customers.filter(c=>c.phone&&!c.archived&&(sts.length===0||sts.includes(c.status))).sort((a,b)=>(b.orderIndex||0)-(a.orderIndex||0));if(!pool.length){toast('No contacts with phone.','danger');return;}adQueue=pool.slice(0,Math.min(cnt,pool.length));adIdx=0;adTotal=adQueue.length;adRunning=true;adWaiting=false;adCurrentId=null;document.getElementById('autoDialerProgressContainer').classList.remove('d-none');document.getElementById('autoDialerCounter').innerText=`0/${adTotal}`;document.getElementById('autoDialerProgressBar').style.width='0%';updateAdButtons(true);toast(`Auto dialer: ${adTotal} calls.`);processNextAdCall();};
+window.openAutoDialerPanel=function(e){if(e)e.preventDefault();document.getElementById('autoDialerPanel').classList.add('show');};
+window.closeAutoDialerPanel=function(){if(adRunning){if(!confirm('Stop dialer?'))return;stopAutoDialer();}document.getElementById('autoDialerPanel').classList.remove('show');};
+window.startAutoDialerFromSelection=function(){const ids=getSelectedIds();if(!ids.length){toast('Select contacts.','danger');return;}const sel=customers.filter(c=>ids.includes(c.id)&&c.phone&&!c.archived);if(!sel.length){toast('No valid numbers.','danger');return;}adQueue=[...sel];adIdx=0;adTotal=sel.length;document.getElementById('autoDialerCount').value=sel.length;document.getElementById('autoDialerStatusFilter').value='';document.getElementById('autoDialerPanel').classList.add('show');adRunning=false;adWaiting=false;document.getElementById('autoDialerProgressContainer').classList.add('d-none');updateAdButtons(false);toast(`${sel.length} queued. Click Start.`);};
 
-        function refreshAllViews() { refreshDashboard();
-            renderCustomerTable();
-            updateBulkActionBar(); }
-
-        function showToast(msg, type='success') {
-            const c = document.getElementById('toastContainer');
-            const id = 't'+Date.now();
-            const bg = type==='danger'?'bg-danger':type==='primary'?'bg-primary':'bg-success';
-            c.insertAdjacentHTML('beforeend', `<div id="${id}" class="toast align-items-center text-white ${bg} border-0 show"><div class="d-flex"><div class="toast-body">${msg}</div><button class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div></div>`);
-            setTimeout(()=>{ const el=document.getElementById(id); if(el)el.remove(); },3500);
-        }
-
-        function escapeHtml(s) { if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
-
-        function getStatusBadgeClass(status) {
-            switch(status) {
-                case 'New': return 'status-badge-new';
-                case 'No Answer': return 'status-badge-no-answer';
-                case 'Not Interested': return 'status-badge-not-interested';
-                case 'Wrong Number': return 'status-badge-wrong-number';
-                case 'Customer': return 'status-badge-customer';
-                case 'Contacted': return 'status-badge-contacted';
-                case 'Proposal Sent': return 'status-badge-proposal';
-                case 'Inactive': return 'status-badge-inactive';
-                default: return 'bg-light text-dark';
-            }
-        }
-        function getPriorityBadgeClass(p) {
-            switch(p) { case 'High': return 'bg-danger'; case 'Medium': return 'bg-warning text-dark'; case 'Low': return 'bg-info text-dark'; default: return 'bg-light text-dark'; }
-        }
-
-        function formatPhoneForDisplay(phone) {
-            if (!phone) return '-';
-            const cleaned = phone.replace(/\s+/g, '');
-            if (cleaned.startsWith('+')) {
-                if (cleaned.length > 6) return cleaned.slice(0,3) + ' ' + cleaned.slice(3,6) + ' ' + cleaned.slice(6);
-                return cleaned;
-            }
-            return phone;
-        }
-
-        function getRawPhoneNumber(phone) {
-            if (!phone) return '';
-            return phone.replace(/\s+/g, '');
-        }
-
-        function refreshDashboard() {
-            const act = customers.filter(c=>!c.archived);
-            document.getElementById('dash-total-customers').innerText = act.length;
-            document.getElementById('dash-total-leads').innerText = act.filter(c=>c.status==='New').length;
-            document.getElementById('dash-no-answer').innerText = act.filter(c=>c.status==='No Answer').length;
-            document.getElementById('dash-not-interested').innerText = act.filter(c=>c.status==='Not Interested').length;
-            updateCharts(act);
-            renderRecentActivity(act);
-        }
-
-        function initCharts() {
-            const dark = document.documentElement.getAttribute('data-bs-theme')==='dark';
-            const tc = dark?'#adbac7':'#212529';
-            const ctx1 = document.getElementById('statusChart').getContext('2d');
-            const allStatuses = ['New','No Answer','Not Interested','Wrong Number','Contacted','Proposal Sent','Customer','Inactive'];
-            statusChartInstance = new Chart(ctx1, { type:'bar', data:{ labels: allStatuses, datasets:[{ label:'Count', data:Array(allStatuses.length).fill(0), backgroundColor:['#6f42c1','#fd7e14','#dc3545','#6c757d','#0d6efd','#ffc107','#198754','#adb5bd'] }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{ticks:{color:tc}}, y:{ticks:{color:tc}, beginAtZero:true} } } });
-            const ctx2 = document.getElementById('sourceChart').getContext('2d');
-            sourceChartInstance = new Chart(ctx2, { type:'doughnut', data:{ labels:['Website','Referral','Cold Call','LinkedIn','Trade Show'], datasets:[{ data:[0,0,0,0,0], backgroundColor:['#0d6efd','#20c997','#ffc107','#0dcaf0','#6f42c1'] }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom',labels:{color:tc}}} } });
-        }
-        function updateCharts(records) {
-            if(!statusChartInstance||!sourceChartInstance) return;
-            const allStatuses = ['New','No Answer','Not Interested','Wrong Number','Contacted','Proposal Sent','Customer','Inactive'];
-            statusChartInstance.data.datasets[0].data = allStatuses.map(s=>records.filter(r=>r.status===s).length);
-            statusChartInstance.update();
-            const sources = ['Website','Referral','Cold Call','LinkedIn','Trade Show'];
-            sourceChartInstance.data.datasets[0].data = sources.map(s=>records.filter(r=>r.source===s).length);
-            sourceChartInstance.update();
-        }
-        function renderRecentActivity(records) {
-            const tbody = document.getElementById('recentActivityTableBody');
-            tbody.innerHTML = '';
-            const sorted = [...records].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,5);
-            if(!sorted.length) { tbody.innerHTML='<tr><td colspan="6" class="text-center py-3 text-muted">No activity</td></tr>'; return; }
-            sorted.forEach(c=>{
-                const tr = document.createElement('tr');
-                const rawPhone = getRawPhoneNumber(c.phone);
-                tr.innerHTML=`<td class="fw-semibold">${escapeHtml(c.name)}</td><td>${escapeHtml(c.company||'-')}</td><td><span class="badge ${getStatusBadgeClass(c.status)}">${c.status}</span></td><td><div class="d-flex align-items-center gap-1"><small>${escapeHtml(formatPhoneForDisplay(c.phone))}</small>${c.phone ? `<a href="tel:${escapeHtml(rawPhone)}" class="call-btn btn-sm" title="Call"><i class="bi bi-telephone-fill"></i></a>` : ''}</div></td><td>${c.followUp||'-'}</td><td><span class="badge ${getPriorityBadgeClass(c.priority)}">${c.priority}</span></td>`;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function getFilteredCustomers() {
-            const search = document.getElementById('filterSearch').value.toLowerCase();
-            const status = document.getElementById('filterStatus').value;
-            const priority = document.getElementById('filterPriority').value;
-            const source = document.getElementById('filterSource').value;
-            return customers.filter(c=>{
-                return (c.name.toLowerCase().includes(search) || (c.company&&c.company.toLowerCase().includes(search)) || c.email.toLowerCase().includes(search) || (c.phone&&c.phone.includes(search))) &&
-                    (!status || c.status===status) && (!priority || c.priority===priority) && (!source || c.source===source);
-            }).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
-        }
-
-        function getSelectedIds() {
-            return Array.from(document.querySelectorAll('#customerTableBody .row-checkbox:checked')).map(cb=>cb.value);
-        }
-        function updateBulkActionBar() {
-            const bar = document.getElementById('bulkActionBar');
-            const ids = getSelectedIds();
-            if(ids.length) { bar.classList.remove('d-none');
-                document.getElementById('selectedCount').innerText = ids.length+' selected'; } else { bar.classList.add('d-none'); }
-        }
-        window.clearSelection = function() {
-            document.querySelectorAll('#customerTableBody .row-checkbox:checked').forEach(cb=>cb.checked=false);
-            document.getElementById('selectAllCheckbox').checked = false;
-            updateBulkActionBar();
-        };
-        window.bulkChangeStatus = function(newStatus) {
-            const ids = getSelectedIds();
-            if(!ids.length) return showToast('No records selected.','danger');
-            if(!confirm(`Change ${ids.length} record(s) to "${newStatus}"?`)) return;
-            customers.forEach(c=>{ if(ids.includes(c.id)) { c.status = newStatus; } });
-            saveData();
-            refreshAllViews();
-            showToast(`${ids.length} record(s) updated to ${newStatus}.`);
-        };
-        window.bulkDelete = function() {
-            const ids = getSelectedIds();
-            if(!ids.length) return showToast('No records selected.','danger');
-            if(!confirm(`DELETE ${ids.length} record(s)?`)) return;
-            customers = customers.filter(c=>!ids.includes(c.id));
-            saveData();
-            refreshAllViews();
-            showToast(`${ids.length} record(s) deleted.`,'danger');
-        };
-
-        function renderCustomerTable() {
-            const filtered = getFilteredCustomers();
-            const tbody = document.getElementById('customerTableBody');
-            tbody.innerHTML = '';
-            const totalItems = filtered.length;
-            const totalPages = Math.ceil(totalItems/itemsPerPage)||1;
-            if(currentPage>totalPages) currentPage = totalPages;
-            const start = (currentPage-1)*itemsPerPage;
-            const paginated = filtered.slice(start, start+itemsPerPage);
-            if(!paginated.length) {
-                tbody.innerHTML = '<tr><td colspan="10" class="text-center py-4 text-muted">No records found.</td></tr>';
-            } else {
-                paginated.forEach(c=>{
-                    const tr = document.createElement('tr');
-                    if(c.archived) tr.classList.add('table-secondary');
-                    const commentCount = (c.comments&&c.comments.length)||0;
-                    const phoneDisplay = formatPhoneForDisplay(c.phone);
-                    const rawPhone = getRawPhoneNumber(c.phone);
-                    tr.innerHTML = `
-                        <td><input type="checkbox" class="row-checkbox" value="${c.id}" onchange="updateBulkActionBar()"></td>
-                        <td><div class="fw-bold">${escapeHtml(c.name)}</div><small class="text-muted">${escapeHtml(c.company||'')}</small></td>
-                        <td><small>${escapeHtml(c.email)}</small></td>
-                        <td>
-                            <div class="d-flex align-items-center gap-1">
-                                <small>${escapeHtml(phoneDisplay)}</small>
-                                ${c.phone ? `<a href="tel:${escapeHtml(rawPhone)}" class="call-btn btn-sm" title="Call ${escapeHtml(phoneDisplay)}"><i class="bi bi-telephone-fill"></i></a>` : ''}
-                            </div>
-                        </td>
-                        <td><small>${escapeHtml(c.city||'')}, ${escapeHtml(c.country||'')}</small></td>
-                        <td><span class="badge ${getStatusBadgeClass(c.status)}">${c.status}</span></td>
-                        <td><span class="badge ${getPriorityBadgeClass(c.priority)}">${c.priority}</span></td>
-                        <td><small>${c.followUp||'-'}</small></td>
-                        <td><span class="badge bg-secondary">${commentCount}</span></td>
-                        <td class="text-end">
-                            <div class="d-flex gap-1 justify-content-end flex-wrap">
-                                <a href="https://aiphone.coperato.net/index.php" target="_blank" class="aiphone-btn btn-sm" title="AI Phone"><i class="bi bi-robot"></i></a>
-                                <div class="dropdown">
-                                    <button class="btn btn-sm btn-light border" data-bs-toggle="dropdown"><i class="bi bi-three-dots-vertical"></i></button>
-                                    <ul class="dropdown-menu dropdown-menu-end">
-                                        <li><span class="dropdown-header small">Change Status</span></li>
-                                        <li><a class="dropdown-item" href="#" onclick="quickChangeStatus('${c.id}','New',event)"><span class="badge ${getStatusBadgeClass('New')} me-1">New</span> New</a></li>
-                                        <li><a class="dropdown-item" href="#" onclick="quickChangeStatus('${c.id}','No Answer',event)"><span class="badge ${getStatusBadgeClass('No Answer')} me-1">No Answer</span> No Answer</a></li>
-                                        <li><a class="dropdown-item" href="#" onclick="quickChangeStatus('${c.id}','Not Interested',event)"><span class="badge ${getStatusBadgeClass('Not Interested')} me-1">Not Interested</span> Not Interested</a></li>
-                                        <li><a class="dropdown-item" href="#" onclick="quickChangeStatus('${c.id}','Wrong Number',event)"><span class="badge ${getStatusBadgeClass('Wrong Number')} me-1">Wrong Number</span> Wrong Number</a></li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item" href="#" onclick="viewCustomer('${c.id}',event)"><i class="bi bi-eye me-2"></i>View / Comments</a></li>
-                                        <li><a class="dropdown-item" href="#" onclick="openCustomerModal('${c.id}',event)"><i class="bi bi-pencil me-2"></i>Edit</a></li>
-                                        <li><a class="dropdown-item" href="#" onclick="duplicateCustomer('${c.id}',event)"><i class="bi bi-copy me-2"></i>Duplicate</a></li>
-                                        <li><a class="dropdown-item" href="#" onclick="toggleArchive('${c.id}',event)"><i class="bi bi-archive me-2"></i>${c.archived?'Unarchive':'Archive'}</a></li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item text-danger" href="#" onclick="deleteCustomer('${c.id}',event)"><i class="bi bi-trash me-2"></i>Delete</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            }
-            renderPagination(totalItems, totalPages);
-            updateBulkActionBar();
-        }
-
-        function renderPagination(totalItems, totalPages) {
-            document.getElementById('paginationInfo').innerText = `Showing ${Math.min(totalItems,(currentPage-1)*itemsPerPage+1)} - ${Math.min(totalItems,currentPage*itemsPerPage)} of ${totalItems}`;
-            const container = document.getElementById('paginationControls');
-            container.innerHTML = '';
-            container.innerHTML += `<li class="page-item ${currentPage===1?'disabled':''}"><a class="page-link" href="#" onclick="changePage(${currentPage-1},event)">Prev</a></li>`;
-            for(let i=1;i<=totalPages;i++) container.innerHTML += `<li class="page-item ${currentPage===i?'active':''}"><a class="page-link" href="#" onclick="changePage(${i},event)">${i}</a></li>`;
-            container.innerHTML += `<li class="page-item ${currentPage===totalPages?'disabled':''}"><a class="page-link" href="#" onclick="changePage(${currentPage+1},event)">Next</a></li>`;
-        }
-
-        window.changePage = function(p, e) { if(e)e.preventDefault();
-            currentPage = p;
-            renderCustomerTable(); };
-        window.applyFilters = function() { currentPage=1;
-            renderCustomerTable(); };
-        window.resetFilters = function() {
-            document.getElementById('filterSearch').value='';
-            document.getElementById('filterStatus').value='';
-            document.getElementById('filterPriority').value='';
-            document.getElementById('filterSource').value='';
-            applyFilters();
-        };
-        window.changeItemsPerPage = function() {
-            itemsPerPage = parseInt(document.getElementById('itemsPerPageSelect').value);
-            currentPage = 1;
-            renderCustomerTable();
-        };
-
-        window.quickChangeStatus = function(id, newStatus, event) {
-            if(event) event.preventDefault();
-            const c = customers.find(item=>item.id===id);
-            if(!c) return;
-            c.status = newStatus;
-            saveData();
-            refreshAllViews();
-            showToast(`Status changed to ${newStatus}.`);
-        };
-
-        window.openCustomerModal = function(id=null, event=null) {
-            if(event) event.preventDefault();
-            const modal = new bootstrap.Modal(document.getElementById('customerModal'));
-            document.getElementById('customerForm').reset();
-            const badge = document.getElementById('detectedCountryBadge');
-            if(badge){ badge.innerText='Auto';
-                badge.className='input-group-text small text-muted'; }
-            if(id) {
-                document.getElementById('modalTitle').innerText='Edit Customer';
-                const c = customers.find(i=>i.id===id);
-                if(c) {
-                    document.getElementById('cust-id').value=c.id;
-                    document.getElementById('cust-name').value=c.name||'';
-                    document.getElementById('cust-company').value=c.company||'';
-                    document.getElementById('cust-email').value=c.email||'';
-                    document.getElementById('cust-phone').value=c.phone||'';
-                    document.getElementById('cust-city').value=c.city||'';
-                    document.getElementById('cust-country').value=c.country||'';
-                    document.getElementById('cust-address').value=c.address||'';
-                    document.getElementById('cust-source').value=c.source||'Website';
-                    document.getElementById('cust-status').value=c.status||'New';
-                    document.getElementById('cust-priority').value=c.priority||'Medium';
-                    document.getElementById('cust-rep').value=c.rep||'John Sales';
-                    document.getElementById('cust-followup').value=c.followUp||'';
-                    document.getElementById('cust-notes').value=c.notes||'';
-                    if(c.phone) handlePhoneInput(c.phone);
-                }
-            } else {
-                document.getElementById('modalTitle').innerText='Add New Customer';
-                document.getElementById('cust-id').value='';
-                document.getElementById('cust-status').value='New';
-            }
-            modal.show();
-        };
-
-        window.saveCustomer = function(e) {
-            e.preventDefault();
-            const id = document.getElementById('cust-id').value;
-            const name = document.getElementById('cust-name').value.trim();
-            const email = document.getElementById('cust-email').value.trim();
-            if(!name) { showToast('Name required.','danger'); return; }
-            if(!email || !email.includes('@')) { showToast('Valid email required.','danger'); return; }
-            const now = new Date().toISOString();
-            const payload = {
-                id: id || 'cust-'+Date.now(),
-                name, company: document.getElementById('cust-company').value.trim(),
-                email, phone: document.getElementById('cust-phone').value.trim(),
-                city: document.getElementById('cust-city').value.trim(),
-                country: document.getElementById('cust-country').value.trim(),
-                address: document.getElementById('cust-address').value.trim(),
-                source: document.getElementById('cust-source').value,
-                status: document.getElementById('cust-status').value,
-                priority: document.getElementById('cust-priority').value,
-                rep: document.getElementById('cust-rep').value.trim(),
-                followUp: document.getElementById('cust-followup').value,
-                notes: document.getElementById('cust-notes').value.trim(),
-                comments: id ? (customers.find(c=>c.id===id)?.comments || []) : [],
-                archived: false,
-                updatedAt: now
-            };
-            if(id) {
-                const idx = customers.findIndex(c=>c.id===id);
-                if(idx!==-1) { payload.createdAt = customers[idx].createdAt;
-                    customers[idx] = payload; }
-                showToast('Record updated!');
-            } else {
-                payload.createdAt = now;
-                customers.unshift(payload);
-                showToast('Record added!');
-            }
-            saveData();
-            bootstrap.Modal.getInstance(document.getElementById('customerModal')).hide();
-            refreshAllViews();
-        };
-
-        window.viewCustomer = function(id, event) {
-            if(event) event.preventDefault();
-            currentViewingCustomerId = id;
-            renderDetailsModal();
-            new bootstrap.Modal(document.getElementById('detailsModal')).show();
-        };
-        function renderDetailsModal() {
-            const c = customers.find(i=>i.id===currentViewingCustomerId);
-            if(!c) return;
-            const rawPhone = getRawPhoneNumber(c.phone);
-            document.getElementById('detail-name').innerText = c.name + ' - Details';
-            const commentsHTML = (c.comments&&c.comments.length) ? c.comments.map(cm=>`
-                <div class="comment-item"><div class="d-flex justify-content-between"><strong class="small text-primary">${escapeHtml(cm.author)}</strong><small class="text-muted">${cm.date}</small></div><div class="small">${escapeHtml(cm.text)}</div></div>
-            `).join('') : '<p class="text-muted small">No comments yet.</p>';
-            document.getElementById('detailModalBody').innerHTML = `
-                <div class="row g-3 mb-3">
-                    <div class="col-6"><strong>Company:</strong> ${escapeHtml(c.company||'-')}</div>
-                    <div class="col-6"><strong>Status:</strong> <span class="badge ${getStatusBadgeClass(c.status)}">${c.status}</span></div>
-                    <div class="col-6"><strong>Email:</strong> ${escapeHtml(c.email)}</div>
-                    <div class="col-6"><strong>Phone:</strong> ${escapeHtml(c.phone||'-')} ${c.phone ? `<a href="tel:${escapeHtml(rawPhone)}" class="call-btn btn-sm ms-1"><i class="bi bi-telephone-fill"></i> Call</a>` : ''}</div>
-                    <div class="col-12"><strong>Address:</strong> ${escapeHtml(c.address||'')}, ${escapeHtml(c.city||'')}, ${escapeHtml(c.country||'')}</div>
-                </div>
-                <div class="d-flex gap-2 mb-3">
-                    <button class="btn btn-sm btn-outline-purple" style="border-color:#6f42c1;color:#6f42c1;" onclick="quickChangeStatus('${c.id}','New')">New</button>
-                    <button class="btn btn-sm btn-outline-warning" onclick="quickChangeStatus('${c.id}','No Answer')">No Answer</button>
-                    <button class="btn btn-sm btn-outline-danger" onclick="quickChangeStatus('${c.id}','Not Interested')">Not Interested</button>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="quickChangeStatus('${c.id}','Wrong Number')">Wrong Number</button>
-                </div>
-                <hr>
-                <h6 class="fw-bold">Comments</h6>
-                <div style="max-height:200px;overflow-y:auto;">${commentsHTML}</div>
-                <div class="input-group mt-2"><input id="newCommentInput" class="form-control form-control-sm" placeholder="Add comment..." onkeypress="if(event.key==='Enter') addComment()"><button class="btn btn-primary btn-sm" onclick="addComment()">Add</button></div>
-            `;
-        }
-        window.addComment = function() {
-            const input = document.getElementById('newCommentInput');
-            if(!input||!input.value.trim()||!currentViewingCustomerId) return;
-            const c = customers.find(i=>i.id===currentViewingCustomerId);
-            if(!c) return;
-            if(!c.comments) c.comments = [];
-            const now = new Date();
-            const dateStr = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0')+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-            c.comments.unshift({ id:'c-'+Date.now(), author: c.rep||'Rep', text: input.value.trim(), date: dateStr });
-            saveData();
-            renderDetailsModal();
-            showToast('Comment added.');
-        };
-
-        window.duplicateCustomer = function(id, e) { if(e)e.preventDefault(); const c=customers.find(i=>i.id===id); if(!c)return;
-            customers.unshift({...c, id:'cust-'+Date.now(), name:c.name+' (Copy)', createdAt:new Date().toISOString(), updatedAt:new Date().toISOString()});
-            saveData();
-            refreshAllViews();
-            showToast('Duplicated.'); };
-        window.toggleArchive = function(id, e) { if(e)e.preventDefault(); const c=customers.find(i=>i.id===id); if(!c)return;
-            c.archived=!c.archived;
-            saveData();
-            refreshAllViews();
-            showToast(c.archived?'Archived.':'Unarchived.'); };
-        window.deleteCustomer = function(id, e) { if(e)e.preventDefault(); if(!confirm('Delete?'))return;
-            customers=customers.filter(c=>c.id!==id);
-            saveData();
-            refreshAllViews();
-            showToast('Deleted.','danger'); };
-        window.markAllAsNew = function(e) { if(e)e.preventDefault(); if(!customers.length) return showToast('No records.','danger'); if(!confirm(`Mark ALL ${customers.length} as "New"?`)) return;
-            customers.forEach(c=>{c.status='New';});
-            saveData();
-            refreshAllViews();
-            showToast('All marked as New.'); };
-        window.deleteAllRecords = function(e) { if(e)e.preventDefault(); if(!customers.length) return showToast('No records.','danger'); if(!confirm(`DELETE ALL ${customers.length} records?`)) return;
-            customers=[];
-            saveData();
-            refreshAllViews();
-            showToast('All deleted.','danger'); };
-        window.toggleSelectAll = function(m) {
-            document.querySelectorAll('#customerTableBody .row-checkbox').forEach(cb=>cb.checked=m.checked);
-            updateBulkActionBar();
-        };
-        window.filterByStatus = function(s, e) { switchTab('customers', e);
-            document.getElementById('filterStatus').value = s;
-            applyFilters(); };
-        window.filterByArchive = function(a, e) { switchTab('customers', e);
-            applyFilters(); };
-        window.handleGlobalSearch = function(e) { switchTab('customers');
-            document.getElementById('filterSearch').value = e.target.value;
-            applyFilters(); };
-        window.toggleDarkMode = function() {
-            const html = document.documentElement;
-            const next = html.getAttribute('data-bs-theme')==='dark'?'light':'dark';
-            html.setAttribute('data-bs-theme', next);
-            document.getElementById('themeIcon').className = next==='dark'?'bi bi-sun-fill':'bi bi-moon-fill';
-            if(statusChartInstance) statusChartInstance.destroy();
-            if(sourceChartInstance) sourceChartInstance.destroy();
-            initCharts();
-            refreshDashboard();
-        };
-        window.toggleSidebar = function() { document.getElementById('sidebar').classList.toggle('show'); };
-        window.switchTab = function(tabId, event) {
-            if(event) event.preventDefault();
-            document.querySelectorAll('.tab-view').forEach(el=>el.classList.add('d-none'));
-            document.querySelectorAll('.nav-link-custom').forEach(el=>el.classList.remove('active'));
-            const target = document.getElementById(`view-${tabId}`);
-            if(target) target.classList.remove('d-none');
-            if(event&&event.currentTarget) event.currentTarget.classList.add('active');
-            if(tabId==='dashboard') refreshDashboard();
-            if(tabId==='customers') renderCustomerTable();
-            document.getElementById('sidebar').classList.remove('show');
-        };
-
-        function setupDragAndDrop() {
-            const zone = document.getElementById('dropZone');
-            if(!zone) return;
-            ['dragenter','dragover'].forEach(ev=>zone.addEventListener(ev, e=>{e.preventDefault();
-                zone.classList.add('dragover');}));
-            ['dragleave','drop'].forEach(ev=>zone.addEventListener(ev, e=>{e.preventDefault();
-                zone.classList.remove('dragover');}));
-            zone.addEventListener('drop', e=>{ const files = e.dataTransfer.files; if(files.length) processImportFile(files[0]); });
-        }
-        window.handleFileSelect = function(e) { if(e.target.files[0]) processImportFile(e.target.files[0]); };
-
-        function processImportFile(file) {
-            const reader = new FileReader();
-            const prog = document.getElementById('importProgressContainer');
-            const bar = document.getElementById('importProgressBar');
-            if(prog) prog.classList.remove('d-none');
-            if(bar) bar.style.width='30%';
-            reader.onload = function(e) {
-                if(bar) bar.style.width='70%';
-                try {
-                    const wb = XLSX.read(new Uint8Array(e.target.result), {type:'array'});
-                    const json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header:1, defval:''});
-                    if(bar) bar.style.width='100%';
-                    setTimeout(()=>{ if(prog) prog.classList.add('d-none'); if(bar) bar.style.width='0%'; },500);
-                    if(json.length<2) { showToast('No data rows.','danger'); return; }
-                    setupImportPreview(json);
-                } catch(err) { showToast('Parse error: '+err.message,'danger'); if(prog) prog.classList.add('d-none'); }
-            };
-            reader.onerror = ()=>{ showToast('Read error.','danger'); if(prog) prog.classList.add('d-none'); };
-            reader.readAsArrayBuffer(file);
-        }
-
-        function setupImportPreview(rawData) {
-            const headers = rawData[0].map(h=>String(h||'').trim());
-            const allRows = rawData.slice(1).filter(row=>row.some(cell=>cell!==null&&cell!==undefined&&String(cell).trim()!==''));
-            if(!allRows.length) { showToast('No valid rows.','danger'); return; }
-            document.getElementById('previewRowCount').innerText = allRows.length;
-            const previewRows = allRows.slice(0,10);
-            const thead = document.getElementById('previewTableHeader');
-            const tbody = document.getElementById('previewTableBody');
-            thead.innerHTML = ''; tbody.innerHTML = '';
-            let trH = document.createElement('tr');
-            headers.forEach(h=>trH.innerHTML+=`<th>${escapeHtml(h)}</th>`);
-            thead.appendChild(trH);
-            previewRows.forEach(r=>{ let tr=document.createElement('tr');
-                headers.forEach((h,i)=>tr.innerHTML+=`<td>${escapeHtml(String(r[i]||''))}</td>`);
-                tbody.appendChild(tr); });
-            if(allRows.length>10) tbody.innerHTML+=`<tr><td colspan="${headers.length}" class="text-center text-muted">... and ${allRows.length-10} more</td></tr>`;
-
-            tempParsedImportData = allRows.map(row=>{
-                const name = String(row[0]||'').trim();
-                const company = String(row[1]||'').trim();
-                const email = String(row[2]||'').trim();
-                const phone = String(row[3]||'').trim();
-                const city = String(row[4]||'').trim();
-                const country = String(row[5]||'').trim();
-                const address = String(row[6]||'').trim();
-                const statusVal = String(row[7]||'').trim();
-                const priorityVal = String(row[8]||'').trim();
-                const sourceVal = String(row[9]||'').trim();
-                const notesVal = String(row[10]||'').trim();
-
-                let finalCountry = country;
-                if (!finalCountry && phone) {
-                    const sorted = [...dialCodeCountryMap].sort((a,b)=>b.code.length-a.code.length);
-                    const match = sorted.find(c=>phone.startsWith(c.code));
-                    if(match) finalCountry = match.country;
-                }
-                const validStatuses = ['New','No Answer','Not Interested','Wrong Number','Contacted','Proposal Sent','Customer','Inactive'];
-                const validPriorities = ['High','Medium','Low'];
-                const validSources = ['Website','Referral','Cold Call','LinkedIn','Trade Show'];
-                return {
-                    id:'cust-'+Date.now()+'-'+Math.random().toString(36).substr(2,6),
-                    name: name || 'Imported Contact',
-                    company: company,
-                    email: email || 'no-email@import.com',
-                    phone: phone,
-                    city: city,
-                    country: finalCountry,
-                    address: address,
-                    source: validSources.includes(sourceVal) ? sourceVal : 'Website',
-                    status: validStatuses.includes(statusVal) ? statusVal : 'New',
-                    priority: validPriorities.includes(priorityVal) ? priorityVal : 'Medium',
-                    rep:'John Sales',
-                    followUp:'',
-                    notes: notesVal,
-                    comments:[],
-                    archived:false,
-                    createdAt:new Date().toISOString(),
-                    updatedAt:new Date().toISOString()
-                };
-            });
-            new bootstrap.Modal(document.getElementById('excelMapperModal')).show();
-        }
-        window.confirmImport = function() {
-            if(!tempParsedImportData||!tempParsedImportData.length) { showToast('No data.','danger'); return; }
-            customers = [...tempParsedImportData, ...customers];
-            saveData();
-            refreshAllViews();
-            bootstrap.Modal.getInstance(document.getElementById('excelMapperModal')).hide();
-            showToast(`Imported ${tempParsedImportData.length} records!`);
-            tempParsedImportData = [];
-            switchTab('customers');
-        };
-        window.exportData = function(format) {
-            const act = customers.filter(c=>!c.archived);
-            if(!act.length) { showToast('No data.','danger'); return; }
-            if(format==='xlsx'||format==='csv') {
-                const data = act.map(c=>({ Name:c.name, Company:c.company, Email:c.email, Phone:c.phone, City:c.city, Country:c.country, Status:c.status, Priority:c.priority, Source:c.source, Rep:c.rep, FollowUp:c.followUp, Notes:c.notes }));
-                const ws = XLSX.utils.json_to_sheet(data);
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, 'Customers');
-                XLSX.writeFile(wb, `CRM_Export_${new Date().toISOString().slice(0,10)}.${format==='csv'?'csv':'xlsx'}`, format==='csv'?{bookType:'csv'}:{});
-                showToast(`Exported ${act.length} records.`);
-            } else window.print();
-        };
-
-        document.addEventListener('DOMContentLoaded', ()=>{
-            loadData();
-            initCharts();
-            refreshAllViews();
-            setupDragAndDrop();
-            document.getElementById('selectAllCheckbox').addEventListener('change', function(){
-                document.querySelectorAll('#customerTableBody .row-checkbox').forEach(cb=>cb.checked=this.checked);
-                updateBulkActionBar();
-            });
-        });
-    })();
+function refreshDash(){const act=customers.filter(c=>!c.archived);document.getElementById('dash-total-customers').innerText=act.length;document.getElementById('dash-total-leads').innerText=act.filter(c=>c.status==='New').length;document.getElementById('dash-no-answer').innerText=act.filter(c=>c.status==='No Answer').length;document.getElementById('dash-not-interested').innerText=act.filter(c=>c.status==='Not Interested').length;updateCharts(act);renderRecent(act);}
+function initCharts(){const dark=document.documentElement.getAttribute('data-bs-theme')==='dark';const tc=dark?'#adbac7':'#212529';const allS=['New','No Answer','Not Interested','Wrong Number','Voicemail','Call Back','Contacted','Proposal Sent','Customer','Inactive'];statusChart=new Chart(document.getElementById('statusChart').getContext('2d'),{type:'bar',data:{labels:allS,datasets:[{label:'Count',data:Array(allS.length).fill(0),backgroundColor:['#6f42c1','#fd7e14','#dc3545','#6c757d','#0dcaf0','#20c997','#0d6efd','#ffc107','#198754','#adb5bd']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:tc}},y:{ticks:{color:tc},beginAtZero:true}}}});sourceChart=new Chart(document.getElementById('sourceChart').getContext('2d'),{type:'doughnut',data:{labels:['Website','Referral','Cold Call','LinkedIn','Trade Show'],datasets:[{data:[0,0,0,0,0],backgroundColor:['#0d6efd','#20c997','#ffc107','#0dcaf0','#6f42c1']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:tc}}}}});}
+function updateCharts(rec){if(!statusChart||!sourceChart)return;const allS=['New','No Answer','Not Interested','Wrong Number','Voicemail','Call Back','Contacted','Proposal Sent','Customer','Inactive'];statusChart.data.datasets[0].data=allS.map(s=>rec.filter(r=>r.status===s).length);statusChart.update();const srcs=['Website','Referral','Cold Call','LinkedIn','Trade Show'];sourceChart.data.datasets[0].data=srcs.map(s=>rec.filter(r=>r.source===s).length);sourceChart.update();}
+function renderRecent(rec){const tb=document.getElementById('recentActivityTableBody');tb.innerHTML='';const srt=[...rec].sort((a,b)=>b.orderIndex-a.orderIndex).slice(0,5);if(!srt.length){tb.innerHTML='<tr><td colspan="6" class="text-center py-3 text-muted">No activity</td></tr>';return;}srt.forEach(c=>{const tr=document.createElement('tr');tr.innerHTML=`<td class="fw-semibold">${esc(c.name)}</td><td>${esc(c.company||'-')}</td><td><span class="badge ${statusClass(c.status)}">${c.status}</span></td><td><div class="d-flex align-items-center gap-1"><small>${esc(fmtPhone(c.phone))}</small>${c.phone?`<a href="javascript:void(0)" class="call-btn btn-sm" onclick="startCall('${c.id}',event)"><i class="bi bi-telephone-fill"></i></a>`:''}</div></td><td>${c.followUp||'-'}</td><td><span class="badge ${priorityClass(c.priority)}">${c.priority}</span></td>`;tb.appendChild(tr);});}
+function getFiltered(){const s=document.getElementById('filterSearch').value.toLowerCase();const st=document.getElementById('filterStatus').value;const pr=document.getElementById('filterPriority').value;const so=document.getElementById('filterSource').value;return customers.filter(c=>(c.name.toLowerCase().includes(s)||(c.company&&c.company.toLowerCase().includes(s))||c.email.toLowerCase().includes(s)||(c.phone&&c.phone.includes(s)))&&(!st||c.status===st)&&(!pr||c.priority===pr)&&(!so||c.source===so)).sort((a,b)=>(b.orderIndex||0)-(a.orderIndex||0));}
+function getSelectedIds(){return Array.from(document.querySelectorAll('#customerTableBody .row-checkbox:checked')).map(cb=>cb.value);}
+function updateBulk(){const bar=document.getElementById('bulkActionBar');const ids=getSelectedIds();if(ids.length){bar.classList.remove('d-none');document.getElementById('selectedCount').innerText=ids.length+' selected';}else{bar.classList.add('d-none');}}
+window.clearSelection=function(){document.querySelectorAll('#customerTableBody .row-checkbox:checked').forEach(cb=>cb.checked=false);document.getElementById('selectAllCheckbox').checked=false;updateBulk();};
+window.bulkChangeStatus=function(s){const ids=getSelectedIds();if(!ids.length)return toast('No selection.','danger');if(!confirm(`Change ${ids.length} to "${s}"?`))return;customers.forEach(c=>{if(ids.includes(c.id))c.status=s;});save();refreshAll();toast(`${ids.length} updated.`);};
+window.bulkDelete=function(){const ids=getSelectedIds();if(!ids.length)return toast('No selection.','danger');if(!confirm(`DELETE ${ids.length}?`))return;customers=customers.filter(c=>!ids.includes(c.id));save();refreshAll();toast(`${ids.length} deleted.`,'danger');};
+function renderTable(){const filt=getFiltered();const tb=document.getElementById('customerTableBody');tb.innerHTML='';const total=filt.length;const pages=Math.ceil(total/itemsPerPage)||1;if(currentPage>pages)currentPage=pages;const start=(currentPage-1)*itemsPerPage;const pag=filt.slice(start,start+itemsPerPage);if(!pag.length){tb.innerHTML='<tr><td colspan="10" class="text-center py-4 text-muted">No records.</td></tr>';}else{pag.forEach(c=>{const tr=document.createElement('tr');if(c.archived)tr.classList.add('table-secondary');tr.innerHTML=`<td><input type="checkbox" class="row-checkbox" value="${c.id}" onchange="updateBulk()"></td><td><div class="fw-bold">${esc(c.name)}</div><small>${esc(c.company||'')}</small></td><td><small>${esc(c.email)}</small></td><td><div class="d-flex align-items-center gap-1"><small>${esc(fmtPhone(c.phone))}</small>${c.phone?`<a href="javascript:void(0)" class="call-btn btn-sm" onclick="startCall('${c.id}',event)"><i class="bi bi-telephone-fill"></i></a>`:''}</div></td><td><small>${esc(c.city||'')}, ${esc(c.country||'')}</small></td><td><span class="badge ${statusClass(c.status)}">${c.status}</span></td><td><span class="badge ${priorityClass(c.priority)}">${c.priority}</span></td><td><small>${c.followUp||'-'}</small></td><td><span class="badge bg-secondary">${(c.comments&&c.comments.length)||0}</span></td><td class="text-end"><div class="d-flex gap-1 justify-content-end"><a href="https://aiphone.coperato.net/index.php" target="_blank" class="aiphone-btn btn-sm"><i class="bi bi-robot"></i></a><div class="dropdown"><button class="btn btn-sm btn-light border" data-bs-toggle="dropdown"><i class="bi bi-three-dots-vertical"></i></button><ul class="dropdown-menu dropdown-menu-end"><li><span class="dropdown-header small">Change Status</span></li><li><a class="dropdown-item" href="#" onclick="quickStatus('${c.id}','New',event)">New</a></li><li><a class="dropdown-item" href="#" onclick="quickStatus('${c.id}','No Answer',event)">No Answer</a></li><li><a class="dropdown-item" href="#" onclick="quickStatus('${c.id}','Not Interested',event)">Not Interested</a></li><li><a class="dropdown-item" href="#" onclick="quickStatus('${c.id}','Wrong Number',event)">Wrong Number</a></li><li><a class="dropdown-item" href="#" onclick="quickStatus('${c.id}','Voicemail',event)">Voicemail</a></li><li><a class="dropdown-item" href="#" onclick="quickStatus('${c.id}','Call Back',event)">Call Back</a></li><li><hr class="dropdown-divider"></li><li><a class="dropdown-item" href="#" onclick="viewCust('${c.id}',event)">View</a></li><li><a class="dropdown-item" href="#" onclick="openCustModal('${c.id}',event)">Edit</a></li><li><a class="dropdown-item" href="#" onclick="dupCust('${c.id}',event)">Duplicate</a></li><li><a class="dropdown-item" href="#" onclick="toggleArch('${c.id}',event)">${c.archived?'Unarchive':'Archive'}</a></li><li><hr class="dropdown-divider"></li><li><a class="dropdown-item text-danger" href="#" onclick="delCust('${c.id}',event)">Delete</a></li></ul></div></div></td>`;tb.appendChild(tr);});}renderPagination(total,pages);updateBulk();}
+function renderPagination(total,pages){document.getElementById('paginationInfo').innerText=`Showing ${Math.min(total,(currentPage-1)*itemsPerPage+1)}-${Math.min(total,currentPage*itemsPerPage)} of ${total}`;const c=document.getElementById('paginationControls');c.innerHTML='';c.innerHTML+=`<li class="page-item ${currentPage===1?'disabled':''}"><a class="page-link" href="#" onclick="chPage(${currentPage-1},event)">Prev</a></li>`;for(let i=1;i<=pages;i++)c.innerHTML+=`<li class="page-item ${currentPage===i?'active':''}"><a class="page-link" href="#" onclick="chPage(${i},event)">${i}</a></li>`;c.innerHTML+=`<li class="page-item ${currentPage===pages?'disabled':''}"><a class="page-link" href="#" onclick="chPage(${currentPage+1},event)">Next</a></li>`;}
+window.chPage=function(p,e){if(e)e.preventDefault();currentPage=p;renderTable();};
+window.applyFilters=function(){currentPage=1;renderTable();};
+window.resetFilters=function(){document.getElementById('filterSearch').value='';document.getElementById('filterStatus').value='';document.getElementById('filterPriority').value='';document.getElementById('filterSource').value='';applyFilters();};
+window.changeItemsPerPage=function(){itemsPerPage=parseInt(document.getElementById('itemsPerPageSelect').value);currentPage=1;renderTable();};
+window.quickStatus=function(id,s,e){if(e)e.preventDefault();const c=customers.find(i=>i.id===id);if(!c)return;c.status=s;c.updatedAt=new Date().toISOString();save();refreshAll();toast(`Status: ${s}`);};
+window.openCustModal=function(id,e){if(e)e.preventDefault();const m=new bootstrap.Modal(document.getElementById('customerModal'));document.getElementById('customerForm').reset();document.getElementById('detectedCountryBadge').innerText='Auto';document.getElementById('detectedCountryBadge').className='input-group-text small text-muted';if(id){document.getElementById('modalTitle').innerText='Edit';const c=customers.find(i=>i.id===id);if(c){document.getElementById('cust-id').value=c.id;document.getElementById('cust-name').value=c.name||'';document.getElementById('cust-company').value=c.company||'';document.getElementById('cust-email').value=c.email||'';document.getElementById('cust-phone').value=c.phone||'';document.getElementById('cust-city').value=c.city||'';document.getElementById('cust-country').value=c.country||'';document.getElementById('cust-address').value=c.address||'';document.getElementById('cust-source').value=c.source||'Website';document.getElementById('cust-status').value=c.status||'New';document.getElementById('cust-priority').value=c.priority||'Medium';document.getElementById('cust-rep').value=c.rep||'';document.getElementById('cust-followup').value=c.followUp||'';document.getElementById('cust-notes').value=c.notes||'';if(c.phone)handlePhoneInput(c.phone);}}else{document.getElementById('modalTitle').innerText='Add';document.getElementById('cust-id').value='';document.getElementById('cust-status').value='New';}m.show();};
+window.openCustomerModal=window.openCustModal;
+window.saveCustomer=function(e){e.preventDefault();const id=document.getElementById('cust-id').value;const name=document.getElementById('cust-name').value.trim();const email=document.getElementById('cust-email').value.trim();if(!name){toast('Name required.','danger');return;}if(!email||!email.includes('@')){toast('Valid email required.','danger');return;}const now=new Date().toISOString();const p={id:id||'cust-'+Date.now(),name,company:document.getElementById('cust-company').value.trim(),email,phone:document.getElementById('cust-phone').value.trim(),city:document.getElementById('cust-city').value.trim(),country:document.getElementById('cust-country').value.trim(),address:document.getElementById('cust-address').value.trim(),source:document.getElementById('cust-source').value,status:document.getElementById('cust-status').value,priority:document.getElementById('cust-priority').value,rep:document.getElementById('cust-rep').value.trim(),followUp:document.getElementById('cust-followup').value,notes:document.getElementById('cust-notes').value.trim(),comments:id?(customers.find(c=>c.id===id)?.comments||[]):[],archived:false,updatedAt:now};if(id){const idx=customers.findIndex(c=>c.id===id);if(idx!==-1){p.orderIndex=customers[idx].orderIndex||(customers.reduce((m,c)=>Math.max(m,c.orderIndex||0),0)+1);p.createdAt=customers[idx].createdAt;customers[idx]=p;}toast('Updated.');}else{p.orderIndex=customers.reduce((m,c)=>Math.max(m,c.orderIndex||0),0)+1;p.createdAt=now;customers.unshift(p);toast('Added.');}save();bootstrap.Modal.getInstance(document.getElementById('customerModal')).hide();refreshAll();};
+window.viewCust=function(id,e){if(e)e.preventDefault();viewingId=id;renderDetails();new bootstrap.Modal(document.getElementById('detailsModal')).show();};
+function renderDetails(){const c=customers.find(i=>i.id===viewingId);if(!c)return;document.getElementById('detail-name').innerText=c.name+' - Details';const cmts=(c.comments&&c.comments.length)?c.comments.map(cm=>`<div class="comment-item"><div class="d-flex justify-content-between"><strong class="small text-primary">${esc(cm.author)}</strong><small class="text-muted">${cm.date}</small></div><div class="small">${esc(cm.text)}</div></div>`).join(''):'<p class="text-muted small">No comments.</p>';document.getElementById('detailModalBody').innerHTML=`<div class="row g-3 mb-3"><div class="col-6"><strong>Company:</strong> ${esc(c.company||'-')}</div><div class="col-6"><strong>Status:</strong> <span class="badge ${statusClass(c.status)}">${c.status}</span></div><div class="col-6"><strong>Email:</strong> ${esc(c.email)}</div><div class="col-6"><strong>Phone:</strong> ${esc(c.phone||'-')} ${c.phone?`<a href="javascript:void(0)" class="call-btn btn-sm ms-1" onclick="startCall('${c.id}',event)"><i class="bi bi-telephone-fill"></i> Call</a>`:''}</div></div><hr><h6>Comments</h6><div style="max-height:200px;overflow-y:auto;">${cmts}</div><div class="input-group mt-2"><input id="newCommentInput" class="form-control form-control-sm" placeholder="Add..." onkeypress="if(event.key==='Enter')addComment()"><button class="btn btn-primary btn-sm" onclick="addComment()">Add</button></div>`;}
+window.addComment=function(){const inp=document.getElementById('newCommentInput');if(!inp||!inp.value.trim()||!viewingId)return;const c=customers.find(i=>i.id===viewingId);if(!c)return;if(!c.comments)c.comments=[];const n=new Date();c.comments.unshift({id:'c-'+Date.now(),author:c.rep||'Rep',text:inp.value.trim(),date:n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0')+' '+String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')});c.updatedAt=new Date().toISOString();save();renderDetails();toast('Comment added.');};
+window.dupCust=function(id,e){if(e)e.preventDefault();const c=customers.find(i=>i.id===id);if(!c)return;const mx=customers.reduce((m,c)=>Math.max(m,c.orderIndex||0),0)+1;customers.unshift({...c,id:'cust-'+Date.now(),name:c.name+' (Copy)',orderIndex:mx,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()});save();refreshAll();toast('Duplicated.');};
+window.toggleArch=function(id,e){if(e)e.preventDefault();const c=customers.find(i=>i.id===id);if(!c)return;c.archived=!c.archived;save();refreshAll();toast(c.archived?'Archived.':'Unarchived.');};
+window.delCust=function(id,e){if(e)e.preventDefault();if(!confirm('Delete?'))return;customers=customers.filter(c=>c.id!==id);save();refreshAll();toast('Deleted.','danger');};
+window.markAllAsNew=function(e){if(e)e.preventDefault();if(!customers.length)return;if(!confirm('Mark ALL as New?'))return;customers.forEach(c=>c.status='New');save();refreshAll();toast('All marked as New.');};
+window.deleteAllRecords=function(e){if(e)e.preventDefault();if(!customers.length)return;if(!confirm('DELETE ALL?'))return;customers=[];save();refreshAll();toast('All deleted.','danger');};
+window.toggleSelectAll=function(m){document.querySelectorAll('#customerTableBody .row-checkbox').forEach(cb=>cb.checked=m.checked);updateBulk();};
+window.filterByStatus=function(s,e){switchTab('customers',e);document.getElementById('filterStatus').value=s;applyFilters();};
+window.filterByArchive=function(a,e){switchTab('customers',e);applyFilters();};
+window.handleGlobalSearch=function(e){switchTab('customers');document.getElementById('filterSearch').value=e.target.value;applyFilters();};
+window.toggleDarkMode=function(){const h=document.documentElement;const n=h.getAttribute('data-bs-theme')==='dark'?'light':'dark';h.setAttribute('data-bs-theme',n);document.getElementById('themeIcon').className=n==='dark'?'bi bi-sun-fill':'bi bi-moon-fill';if(statusChart)statusChart.destroy();if(sourceChart)sourceChart.destroy();initCharts();refreshDash();};
+window.toggleSidebar=function(){document.getElementById('sidebar').classList.toggle('show');};
+window.switchTab=function(t,e){if(e)e.preventDefault();document.querySelectorAll('.tab-view').forEach(el=>el.classList.add('d-none'));document.querySelectorAll('.nav-link-custom').forEach(el=>el.classList.remove('active'));const tg=document.getElementById(`view-${t}`);if(tg)tg.classList.remove('d-none');if(e&&e.currentTarget)e.currentTarget.classList.add('active');if(t==='dashboard')refreshDash();if(t==='customers')renderTable();document.getElementById('sidebar').classList.remove('show');};
+function setupDrag(){const z=document.getElementById('dropZone');if(!z)return;['dragenter','dragover'].forEach(ev=>z.addEventListener(ev,e=>{e.preventDefault();z.classList.add('dragover');}));['dragleave','drop'].forEach(ev=>z.addEventListener(ev,e=>{e.preventDefault();z.classList.remove('dragover');}));z.addEventListener('drop',e=>{const f=e.dataTransfer.files;if(f.length)processFile(f[0]);});}
+window.handleFileSelect=function(e){if(e.target.files[0])processFile(e.target.files[0]);};
+function processFile(file){const r=new FileReader();const p=document.getElementById('importProgressContainer');const b=document.getElementById('importProgressBar');if(p)p.classList.remove('d-none');if(b)b.style.width='30%';r.onload=function(e){if(b)b.style.width='70%';try{const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});const json=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:''});if(b)b.style.width='100%';setTimeout(()=>{if(p)p.classList.add('d-none');if(b)b.style.width='0%';},500);if(json.length<2){toast('No data.','danger');return;}setupPreview(json);}catch(err){toast('Error: '+err.message,'danger');if(p)p.classList.add('d-none');}};r.onerror=()=>{toast('Read error.','danger');if(p)p.classList.add('d-none');};r.readAsArrayBuffer(file);}
+function setupPreview(raw){const headers=raw[0].map(h=>String(h||'').trim());const rows=raw.slice(1).filter(row=>row.some(cell=>cell!==null&&cell!==undefined&&String(cell).trim()!==''));if(!rows.length){toast('No rows.','danger');return;}document.getElementById('previewRowCount').innerText=rows.length;const prev=rows.slice(0,10);const th=document.getElementById('previewTableHeader');const tb=document.getElementById('previewTableBody');th.innerHTML='';tb.innerHTML='';let trH=document.createElement('tr');headers.forEach(h=>trH.innerHTML+=`<th>${esc(h)}</th>`);th.appendChild(trH);prev.forEach(r=>{let tr=document.createElement('tr');headers.forEach((h,i)=>tr.innerHTML+=`<td>${esc(String(r[i]||''))}</td>`);tb.appendChild(tr);});if(rows.length>10)tb.innerHTML+=`<tr><td colspan="${headers.length}" class="text-center text-muted">... and ${rows.length-10} more</td></tr>`;const mx=customers.reduce((m,c)=>Math.max(m,c.orderIndex||0),0);const vs=['New','No Answer','Not Interested','Wrong Number','Voicemail','Call Back','Contacted','Proposal Sent','Customer','Inactive'];tempImport=rows.map((row,idx)=>{const ph=String(row[3]||'').trim();let cn=String(row[5]||'').trim();if(!cn&&ph){const srt=[...dialMap].sort((a,b)=>b.code.length-a.code.length);const m=srt.find(c=>ph.startsWith(c.code));if(m)cn=m.country;}return{id:'cust-'+Date.now()+'-'+Math.random().toString(36).substr(2,6),name:String(row[0]||'').trim()||'Imported',company:String(row[1]||'').trim(),email:String(row[2]||'').trim()||'no@email.com',phone:ph,city:String(row[4]||'').trim(),country:cn,address:String(row[6]||'').trim(),source:'Website',status:vs.includes(String(row[7]||'').trim())?String(row[7]||'').trim():'New',priority:'Medium',rep:'John Sales',followUp:'',notes:String(row[10]||'').trim(),comments:[],archived:false,orderIndex:mx+idx+1,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};});new bootstrap.Modal(document.getElementById('excelMapperModal')).show();}
+window.confirmImport=function(){if(!tempImport||!tempImport.length){toast('No data.','danger');return;}customers=[...tempImport,...customers];save();refreshAll();bootstrap.Modal.getInstance(document.getElementById('excelMapperModal')).hide();toast(`Imported ${tempImport.length}!`);tempImport=[];switchTab('customers');};
+window.exportData=function(f){const act=customers.filter(c=>!c.archived);if(!act.length){toast('No data.','danger');return;}if(f==='xlsx'||f==='csv'){const data=act.map(c=>({Name:c.name,Company:c.company,Email:c.email,Phone:c.phone,City:c.city,Country:c.country,Status:c.status,Priority:c.priority,Source:c.source,Rep:c.rep,FollowUp:c.followUp,Notes:c.notes}));const ws=XLSX.utils.json_to_sheet(data);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Customers');XLSX.writeFile(wb,`CRM_Export_${new Date().toISOString().slice(0,10)}.${f==='csv'?'csv':'xlsx'}`,f==='csv'?{bookType:'csv'}:{});toast(`Exported ${act.length}.`);}else window.print();};
+document.addEventListener('DOMContentLoaded',()=>{load();initCharts();refreshAll();setupDrag();document.getElementById('selectAllCheckbox').addEventListener('change',function(){document.querySelectorAll('#customerTableBody .row-checkbox').forEach(cb=>cb.checked=this.checked);updateBulk();});});
+})();
 </script>
 </body>
 </html>
