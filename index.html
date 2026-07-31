@@ -307,7 +307,19 @@
 </head>
 <body>
 
-<div id="app-wrapper">
+<div id="loginOverlay" style="position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#0d6efd,#6f42c1);display:flex;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:1rem;padding:2.5rem 2rem;width:100%;max-width:360px;box-shadow:0 20px 50px rgba(0,0,0,0.3);">
+        <div class="text-center mb-4"><i class="bi bi-briefcase-fill text-primary" style="font-size:2.5rem;"></i><h4 class="fw-bold mt-2 mb-0">ApexCRM</h4><small class="text-muted">Please sign in to continue</small></div>
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="mb-3"><label class="form-label small fw-bold">Username</label><input type="text" id="login-user" class="form-control" autocomplete="username" required></div>
+            <div class="mb-3"><label class="form-label small fw-bold">Password</label><input type="password" id="login-pass" class="form-control" autocomplete="current-password" required></div>
+            <div id="loginError" class="text-danger small mb-2 d-none">Invalid username or password.</div>
+            <button type="submit" class="btn btn-primary w-100">Sign In</button>
+        </form>
+    </div>
+</div>
+
+<div id="app-wrapper" style="display:none;">
     <aside id="sidebar">
         <div class="sidebar-brand"><i class="bi bi-briefcase-fill text-primary me-2"></i><span>ApexCRM</span></div>
         <div class="p-2 flex-grow-1 overflow-y-auto">
@@ -328,7 +340,7 @@
             <a href="#" class="nav-link-custom text-danger" onclick="markAllAsNew(event)"><i class="bi bi-flag-fill"></i> Mark All as New</a>
             <a href="#" class="nav-link-custom text-danger" onclick="deleteAllRecords(event)"><i class="bi bi-trash-fill"></i> Delete All Records</a>
         </div>
-        <div class="p-3 border-top"><div class="d-flex align-items-center justify-content-between"><div class="d-flex align-items-center gap-2"><div class="avatar-initials">JS</div><div class="lh-1"><div class="fw-bold small">John Sales</div><small class="text-muted" style="font-size:0.75rem;">Admin</small></div></div><button class="btn btn-sm btn-outline-secondary rounded-circle" onclick="toggleDarkMode()"><i class="bi bi-moon-fill" id="themeIcon"></i></button></div></div>
+        <div class="p-3 border-top"><div class="d-flex align-items-center justify-content-between"><div class="d-flex align-items-center gap-2"><div class="avatar-initials">JS</div><div class="lh-1"><div class="fw-bold small">John Sales</div><small class="text-muted" style="font-size:0.75rem;">Admin</small></div></div><div class="d-flex gap-1"><button class="btn btn-sm btn-outline-secondary rounded-circle" onclick="toggleDarkMode()"><i class="bi bi-moon-fill" id="themeIcon"></i></button><button class="btn btn-sm btn-outline-danger rounded-circle" onclick="logoutCrm()" title="Log out"><i class="bi bi-box-arrow-right"></i></button></div></div></div>
     </aside>
 
     <main id="main-content">
@@ -407,6 +419,10 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 (function(){
+const CRM_USER='Thomas';const CRM_PASS='0182';const SESSION_KEY='apexcrm_session';
+window.handleLogin=function(e){e.preventDefault();const u=document.getElementById('login-user').value.trim();const p=document.getElementById('login-pass').value;const err=document.getElementById('loginError');if(u===CRM_USER&&p===CRM_PASS){sessionStorage.setItem(SESSION_KEY,'1');err.classList.add('d-none');showApp();}else{err.classList.remove('d-none');document.getElementById('login-pass').value='';}};
+function showApp(){document.getElementById('loginOverlay').style.display='none';document.getElementById('app-wrapper').style.display='flex';initApp();}
+window.logoutCrm=function(){sessionStorage.removeItem(SESSION_KEY);location.reload();};
 const dialMap=[{code:'+31',country:'Netherlands'},{code:'+33',country:'France'},{code:'+1',country:'USA'},{code:'+44',country:'UK'},{code:'+49',country:'Germany'},{code:'+91',country:'India'},{code:'+86',country:'China'},{code:'+81',country:'Japan'},{code:'+61',country:'Australia'},{code:'+55',country:'Brazil'},{code:'+52',country:'Mexico'},{code:'+39',country:'Italy'},{code:'+34',country:'Spain'},{code:'+7',country:'Russia'},{code:'+82',country:'South Korea'},{code:'+27',country:'South Africa'},{code:'+971',country:'UAE'},{code:'+65',country:'Singapore'},{code:'+41',country:'Switzerland'},{code:'+46',country:'Sweden'}];
 window.handlePhoneInput=function(v){if(!v)return;const b=document.getElementById('detectedCountryBadge');const s=[...dialMap].sort((a,b)=>b.code.length-a.code.length);const m=s.find(c=>v.trim().startsWith(c.code));if(m){document.getElementById('cust-country').value=m.country;if(b){b.innerText=m.country;b.className='input-group-text small bg-success-subtle text-success fw-bold';}}else{if(b){b.innerText='Auto';b.className='input-group-text small text-muted';}}};
 const SK='apexcrm_v12';let customers=[],currentPage=1,itemsPerPage=20,tempImport=[],statusChart=null,sourceChart=null,viewingId=null,callTimer=null,currentCallCust=null;
@@ -481,7 +497,8 @@ function processFile(file){const r=new FileReader();const p=document.getElementB
 function setupPreview(raw){const headers=raw[0].map(h=>String(h||'').trim());const rows=raw.slice(1).filter(row=>row.some(cell=>cell!==null&&cell!==undefined&&String(cell).trim()!==''));if(!rows.length){toast('No rows.','danger');return;}document.getElementById('previewRowCount').innerText=rows.length;const prev=rows.slice(0,10);const th=document.getElementById('previewTableHeader');const tb=document.getElementById('previewTableBody');th.innerHTML='';tb.innerHTML='';let trH=document.createElement('tr');headers.forEach(h=>trH.innerHTML+=`<th>${esc(h)}</th>`);th.appendChild(trH);prev.forEach(r=>{let tr=document.createElement('tr');headers.forEach((h,i)=>tr.innerHTML+=`<td>${esc(String(r[i]||''))}</td>`);tb.appendChild(tr);});if(rows.length>10)tb.innerHTML+=`<tr><td colspan="${headers.length}" class="text-center text-muted">... and ${rows.length-10} more</td></tr>`;const mx=customers.reduce((m,c)=>Math.max(m,c.orderIndex||0),0);const vs=['New','No Answer','Not Interested','Wrong Number','Voicemail','Call Back','Contacted','Proposal Sent','Customer','Inactive'];tempImport=rows.map((row,idx)=>{const ph=String(row[3]||'').trim();let cn=String(row[5]||'').trim();if(!cn&&ph){const srt=[...dialMap].sort((a,b)=>b.code.length-a.code.length);const m=srt.find(c=>ph.startsWith(c.code));if(m)cn=m.country;}return{id:'cust-'+Date.now()+'-'+Math.random().toString(36).substr(2,6),name:String(row[0]||'').trim()||'Imported',company:String(row[1]||'').trim(),email:String(row[2]||'').trim()||'no@email.com',phone:ph,city:String(row[4]||'').trim(),country:cn,address:String(row[6]||'').trim(),source:'Website',status:vs.includes(String(row[7]||'').trim())?String(row[7]||'').trim():'New',priority:'Medium',rep:'John Sales',followUp:'',notes:String(row[10]||'').trim(),comments:[],archived:false,orderIndex:mx+idx+1,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};});new bootstrap.Modal(document.getElementById('excelMapperModal')).show();}
 window.confirmImport=function(){if(!tempImport||!tempImport.length){toast('No data.','danger');return;}customers=[...tempImport,...customers];save();refreshAll();bootstrap.Modal.getInstance(document.getElementById('excelMapperModal')).hide();toast(`Imported ${tempImport.length}!`);tempImport=[];switchTab('customers');};
 window.exportData=function(f){const act=customers.filter(c=>!c.archived);if(!act.length){toast('No data.','danger');return;}if(f==='xlsx'||f==='csv'){const data=act.map(c=>({Name:c.name,Company:c.company,Email:c.email,Phone:c.phone,City:c.city,Country:c.country,Status:c.status,Priority:c.priority,Source:c.source,Rep:c.rep,FollowUp:c.followUp,Notes:c.notes}));const ws=XLSX.utils.json_to_sheet(data);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Customers');XLSX.writeFile(wb,`CRM_Export_${new Date().toISOString().slice(0,10)}.${f==='csv'?'csv':'xlsx'}`,f==='csv'?{bookType:'csv'}:{});toast(`Exported ${act.length}.`);}else window.print();};
-document.addEventListener('DOMContentLoaded',()=>{load();initCharts();refreshAll();setupDrag();document.getElementById('selectAllCheckbox').addEventListener('change',function(){document.querySelectorAll('#customerTableBody .row-checkbox').forEach(cb=>cb.checked=this.checked);updateBulk();});});
+function initApp(){load();initCharts();refreshAll();setupDrag();document.getElementById('selectAllCheckbox').addEventListener('change',function(){document.querySelectorAll('#customerTableBody .row-checkbox').forEach(cb=>cb.checked=this.checked);updateBulk();});}
+document.addEventListener('DOMContentLoaded',()=>{if(sessionStorage.getItem(SESSION_KEY)==='1'){showApp();}else{document.getElementById('login-user').focus();}});
 })();
 </script>
 </body>
